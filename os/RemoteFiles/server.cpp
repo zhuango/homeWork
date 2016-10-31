@@ -114,6 +114,28 @@ void RecvFile(int connfd, string filename)
 	file.close();
 }
 
+void process(int connfd)
+{			
+	Read(connfd, buff, 2);//get operation info.
+	cout << "aaaaaaaaaaaaa" << string(buff) << endl;///////
+	if      (string(buff) == "1")
+	{
+		Read(connfd, buff, MAXLINE);//read filename.
+		SendFile(connfd, string(buff));
+	}
+	else if (string(buff) == "2")
+	{
+		Read(connfd, buff, MAXLINE);//read filename
+		RecvFile(connfd, string(buff));
+	}
+	else
+	{
+		Close(connfd);
+		break;
+	}
+	cout << "aaaaaaaaaaaaa" << string(buff) << endl;///////
+}
+
 int main(void)
 {
 	int listenfd, connfd;
@@ -138,24 +160,7 @@ int main(void)
 		/* if there is a client?Yes, then accept the client */
 		connfd = Accept(listenfd, (struct sockaddr *)NULL, NULL);
 		{
-			Read(connfd, buff, 2);//get operation info.
-			cout << "aaaaaaaaaaaaa" << string(buff) << endl;///////
-			if      (string(buff) == "1")
-			{
-				Read(connfd, buff, MAXLINE);//read filename.
-				SendFile(connfd, string(buff));
-			}
-			else if (string(buff) == "2")
-			{
-				Read(connfd, buff, MAXLINE);//read filename
-				RecvFile(connfd, string(buff));
-			}
-			else
-			{
-				Close(connfd);
-				break;
-			}
-			cout << "aaaaaaaaaaaaa" << string(buff) << endl;///////
+			process(connfd);
 		}
 	}
 }

@@ -13,7 +13,7 @@ using namespace std;
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#define MAXLINE 4096
+#define MAXLINE 2 * 1024 * 1024
 #define PORT 9877
 
 vector<string> split(string line, char delim)
@@ -64,10 +64,10 @@ void GetFile(int sockfd, string filename)
 	file.open(filename.c_str());
 	while(true)
 	{
-		int n = read(sockfd, recvline, MAXLINE);
+		int n = recv(sockfd, recvline, MAXLINE, 0);
 		file.write(recvline, n);
 		file.flush();
-		if (n < MAXLINE)
+		if (n == 0)
 		{
 			break;
 		}
@@ -86,7 +86,7 @@ void PutFile(int sockfd, string filename)
 		{
 			break;
 		}
-		write(sockfd, recvline, file.gcount());
+		send(sockfd, recvline, file.gcount(), 0);
 	}
 	file.close();
 }

@@ -1,19 +1,21 @@
 #include <cstring>
+#include <errno.h>
 
 #include <vector>
 #include <string>
 #include <fstream>
 #include <iostream>
 #include <exception>
+#include <thread>
 using namespace std;
 
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#define MAXLINE 4096
+#define MAXLINE 2 * 1024 * 1024
 #define LISTENQ 4096
-
+#define PORT 9877
 /* create socket */
 int Socket(int family, int type, int portocol)
 {
@@ -92,7 +94,7 @@ void SendFile(int connfd, string filename)
 		{
 			break;
 		}
-		write(connfd, recvline, file.gcount());
+		send(connfd, recvline, file.gcount(), 0);
 	}
 	file.close();
 }
@@ -103,10 +105,10 @@ void RecvFile(int connfd, string filename)
 	file.open(filename.c_str());
 	while(true)
 	{
-		int n = read(connfd, recvline, MAXLINE);
+		int n = recv(connfd, recvline, MAXLINE, 0);
 		file.write(recvline, n);
 		file.flush();
-		if (n < MAXLINE)
+		if (n == 0)
 		{
 			break;
 		}
@@ -116,8 +118,9 @@ void RecvFile(int connfd, string filename)
 
 void process(int connfd)
 {			
+	char buff[MAXLINE + 1];
 	Read(connfd, buff, 2);//get operation info.
-	cout << "aaaaaaaaaaaaa" << string(buff) << endl;///////
+	//cout << "aaaaaaaaaaaaa" << string(buff) << endl;///////
 	if      (string(buff) == "1")
 	{
 		Read(connfd, buff, MAXLINE);//read filename.
@@ -128,20 +131,17 @@ void process(int connfd)
 		Read(connfd, buff, MAXLINE);//read filename
 		RecvFile(connfd, string(buff));
 	}
-	else
-	{
-		Close(connfd);
-		break;
-	}
-	cout << "aaaaaaaaaaaaa" << string(buff) << endl;///////
+	Close(connfd);
+	//cout << "aaaaaaaaaaaaa" << string(buff) << endl;///////
 }
 
 int main(void)
 {
 	int listenfd, connfd;
 	struct sockaddr_in servaddr;
-	char buff[MAXLINE];
 	time_t ticks;
+	vector<thread> threads;
+	int maxThreadSize = 2;
 
 	/* create the socket */
 	listenfd = Socket(AF_INET, SOCK_STREAM, 0);
@@ -149,7 +149,7 @@ int main(void)
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;/* set the family */
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);/* receive all address client */
-	servaddr.sin_port = htons(9877);	/* set the portnumber */
+	servaddr.sin_port = htons(PORT);	/* set the portnumber */
 
 	/* bind the sockfd snd the address */
 	Bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
@@ -159,8 +159,14 @@ int main(void)
 	for(;;){
 		/* if there is a client?Yes, then accept the client */
 		connfd = Accept(listenfd, (struct sockaddr *)NULL, NULL);
+		threads.push_back(thread(process, connfd));
+		if (threads.size() > maxThreadSize)
 		{
-			process(connfd);
+			for (auto &t: threads)
+			{
+				t.join();
+			}
 		}
 	}
+	
 }

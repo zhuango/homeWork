@@ -126,23 +126,26 @@ int main(int argc, char *argv[])
 	}
 	
 	string command;
+	//command format:
+	// put localFileName  remoteFileName
+	// get remoteFileName localFileName
 	getline(cin, command);
 	vector<string> elems = split(command, ' ');
 	if      (elems[0] == "get")
 	{
-		Write(sockfd, "1", 2);
-		Write(sockfd, elems[1].c_str(), elems[1].size() + 1);
+		Write(sockfd, "1", 2);//send operation code.
+		Write(sockfd, elems[1].c_str(), elems[1].size() + 1);//send filename which client want to get.
 		GetFile(sockfd, elems[2]);
 	}
 	else if (elems[0] == "put")
 	{
-		Write(sockfd, "2", 2);
-		Write(sockfd, elems[2].c_str(), elems[2].size() + 1);
+		Write(sockfd, "2", 2);//send operation code.
+		Write(sockfd, elems[2].c_str(), elems[2].size() + 1);//send filename which server should create.
 		PutFile(sockfd, elems[1]);
 	}
 	else
 	{
-		cout << "invalid operations, please try again." << endl;
+		cout << "Invalid operations." << endl;
 	}
 	Close(sockfd);
 

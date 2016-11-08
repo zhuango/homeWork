@@ -1,5 +1,6 @@
 #include <iostream>
 #include <thread>
+#include <sstream>
 using namespace std;
 
 void threadPro(int a, string b, double c)
@@ -9,7 +10,10 @@ void threadPro(int a, string b, double c)
 
 int main(void)
 {
-    thread t1(threadPro, 1, "sfd", 12.3);
-    t1.join();
-    return 0;
+    string str = "123";
+    stringstream ss(str);
+	int result;
+	ss >> result;
+
+    cout << result - 1 << endl;
 }

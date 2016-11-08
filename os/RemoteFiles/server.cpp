@@ -166,7 +166,7 @@ int main(void)
 			{
 				t.join();
 			}
-			thread.clear();
+			threads.clear();
 		}
 	}
 	

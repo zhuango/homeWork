@@ -90,14 +90,22 @@ void PutFile(int sockfd, string filename)
 	}
 	file.close();
 }
+int StringToInt32(string str)
+{
+	stringstream ss(str);
+	int result;
+	ss >> result;
+	return result;
+}
 int main(int argc, char *argv[])
 {
 	int sockfd, n;
 	char recvline[MAXLINE + 1];
 	struct sockaddr_in servaddr;
 
-	if(argc != 2){
-		cout << "Usage: a.out <IPaddress>" << endl;
+	cout << argv[0] << endl;
+	if(argc <= 5){
+		cout << "Usage: a.out <IPaddress> <PORT> <path> <path>" << endl;
 		return 1;
 	}
 
@@ -110,7 +118,7 @@ int main(int argc, char *argv[])
 	/* clear the socket address struct */
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;/* set the family */
-	servaddr.sin_port = htons(PORT);/* set the port number */
+	servaddr.sin_port = htons(StringToInt32(argv[2]));/* set the port number */
 
 	/* set the command line arg to the suitable like */
 	if(inet_pton(AF_INET, argv[1], &servaddr.sin_addr) <= 0){
@@ -125,23 +133,25 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	
-	string command;
+	string command(argv[0]);
 	//command format:
 	// put localFileName  remoteFileName
 	// get remoteFileName localFileName
-	getline(cin, command);
-	vector<string> elems = split(command, ' ');
-	if      (elems[0] == "get")
+	//getline(cin, command);
+	vector<string> elems;
+	elems.push_back(argv[3]);
+	elems.push_back(argv[4]);
+	if      (command.find_last_of("get"))
 	{
 		Write(sockfd, "1", 2);//send operation code.
-		Write(sockfd, elems[1].c_str(), elems[1].size() + 1);//send filename which client want to get.
-		GetFile(sockfd, elems[2]);
+		Write(sockfd, elems[0].c_str(), elems[0].size() + 1);//send filename which client want to get.
+		GetFile(sockfd, elems[1]);
 	}
-	else if (elems[0] == "put")
+	else if (command.find_last_of("put"))
 	{
 		Write(sockfd, "2", 2);//send operation code.
-		Write(sockfd, elems[2].c_str(), elems[2].size() + 1);//send filename which server should create.
-		PutFile(sockfd, elems[1]);
+		Write(sockfd, elems[1].c_str(), elems[1].size() + 1);//send filename which server should create.
+		PutFile(sockfd, elems[0]);
 	}
 	else
 	{

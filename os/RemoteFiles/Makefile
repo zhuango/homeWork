@@ -6,4 +6,4 @@ client:client.cpp
 server:server.cpp
 	g++ server.cpp -o server -std=c++11 -lpthread
 clean:
-	rm test client server
+	rm test put get server

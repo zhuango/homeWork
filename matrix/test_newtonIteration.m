@@ -1,0 +1,1 @@
+format;x = newtonIteration(0.6, 1e-5)

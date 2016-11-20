@@ -1,0 +1,1 @@
+x = simpleIteration(1.5, 5e-4)

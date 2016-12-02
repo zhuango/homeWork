@@ -1,0 +1,1 @@
+format;x = newtonSecant(0.6, 0.5, 1e-5)

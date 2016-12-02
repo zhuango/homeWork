@@ -1,4 +1,4 @@
-function[H] = House(w)
+function[H] = Householder(w)
     shape = size(w);
     n = max(shape);
     if shape(1) < shape(2)

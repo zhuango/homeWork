@@ -30,3 +30,6 @@ n = size(sections, 1)
 for i = 1:n
     root = rootByDichotomy(sections(i, 1), sections(i, 2), 1e-3)
 end
+
+% subplot(211),imshow(.....);
+% subplot(212),imhist(.....);

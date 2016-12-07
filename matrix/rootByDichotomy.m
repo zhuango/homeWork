@@ -8,18 +8,19 @@ function [x] = rootByDichotomy(lowerBound, upperBound, precision)
 
     while true
         old = x;
-        x  = (lowerBound + upperBound) / 2;
+        x  = (lowerBound + upperBound) / 2.00000000;
         f  = rootByDichotomy_f(x);
         f0 = rootByDichotomy_f(lowerBound);
         f1 = rootByDichotomy_f(upperBound);
-        if abs(old -x) < precision
+        if abs(f) < precision
             break;
         end
-        if f * f0 < 0
-            upperBound = x
+        if f * f0 <= 0
+            upperBound = x;
         end
-        if f * f1 < 0
-            lowerBound = x
+        if f * f1 <= 0
+            lowerBound = x;
+        end
     end
 
 end

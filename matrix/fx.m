@@ -1,4 +1,5 @@
 function [result] = fx(x)
+    format long;
     if x == 0
         result = 1.0;
         return

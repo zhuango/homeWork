@@ -1,1 +1,1 @@
-format;x = newtonSecant(0.6, 0.5, 1e-5)
+[x, errors] = newtonSecant(0.6, 0.5, 1e-5)

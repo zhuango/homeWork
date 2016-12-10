@@ -1,1 +1,1 @@
-format;x = newtonIteration(0.6, 1e-5)
+[x, errors] = newtonIteration(0.6, 1e-5)

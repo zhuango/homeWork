@@ -1,4 +1,4 @@
 lowerBound = 0;
-upperBound = 1;
-n = 3;
+upperBound = pi / 2.0;
+n = 7;
 integration = complexTrapezoidalIntegral(lowerBound, upperBound, n)

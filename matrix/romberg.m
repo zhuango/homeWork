@@ -1,5 +1,5 @@
 function [integration] = romberg(lowerBound, upperBound, error)
-    T = [0.5 * (romberg_f(lowerBound) + romberg_f(upperBound))];
+    T = [0.5 * (romberg_f(lowerBound) + romberg_f(upperBound))]
     old =T(1);
     while true
         n = max(size(T)) + 1;
@@ -16,10 +16,11 @@ function [integration] = romberg(lowerBound, upperBound, error)
         end
         if abs(newT(n) - old) < error
             integration = newT(n);
+            newT
+
             return ;
         end
-        old;
         old = newT(n);
-        T = newT;
+        T = newT
     end
 end

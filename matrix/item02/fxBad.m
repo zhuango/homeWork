@@ -1,8 +1,11 @@
 function [result] = fxBad(x)
+    result = zeros(size(x));
     d = 1 + x;
-    if d == 1
-        result = 1.0;
-        return
+    for i = 1:max(size(x))
+        if d(i) == 1
+            result(i) = 1.0;
+            continue
+        end
+        result(i) = log(d(i)) ./ (d(i) - 1);
     end
-    result = log(d) ./ (d - 1);
 end

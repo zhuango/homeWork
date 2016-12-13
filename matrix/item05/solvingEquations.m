@@ -1,8 +1,11 @@
 for n = 10:20
+    n
     A = generateA(n);
-    b = rand(n, 1)
+    b = rand(n, 1) + 1
+    det_A = det(A)
     L = choleskyDecomposes(A);
-    % x = (L') ^ -1 * L ^-1 * b;
+    %L = chol(A,'lower');
+    %x = (L') ^ -1 * L ^-1 * b;
     y = zeros(n, 1);
     
     y(1) = b(1) / L(1, 1) ;
@@ -25,5 +28,5 @@ for n = 10:20
         x(i) = (y(i) - sumLX) / L(i, i);
         i -= 1;
     end
-    b = A * x
+    cal_b = A * x
 end

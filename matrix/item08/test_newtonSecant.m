@@ -1,1 +1,6 @@
-[x, errors] = newtonSecant(0.6, 0.5, 1e-5)
+[x, errors] = newtonIteration(3.4, 1e-10)
+plot(errors, 'r')
+hold on
+[x, errors] = newtonSecant(3.4, 3.6, 1e-10)
+plot(errors,'b')
+

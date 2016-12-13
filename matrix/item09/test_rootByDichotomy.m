@@ -18,7 +18,7 @@ subplot(224)
 plot(x, rootByDichotomy_f(x));
 drawnow;
 
-sections = singleRootSection(0, 4*pi, 4);
+sections = singleRootSection(0, 4*pi, 4)
 % sections =
 %     1.5708    3.1416
 %     3.1416    4.7124

@@ -5,9 +5,9 @@ function[L] = choleskyDecomposes(X)
     for i = 1:n
         sumSquare = 0.0;
         for k = 1:i - 1
-            sumSquare += L(i, k) * L(i, k);
+            sumSquare += L(i, k) .* L(i, k);
         end
-        L(i, i) = sqrt(X(i, i) - sumSquare);
+        L(i, i) = sqrt(X(i, i) - sumSquare)
         
         for j = i + 1:n
             sumMul = 0.0;
@@ -17,4 +17,5 @@ function[L] = choleskyDecomposes(X)
             L(j, i) = (X(j, i) - sumMul) / L(i, i);
         end
     end
+    L
 end

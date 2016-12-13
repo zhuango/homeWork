@@ -1,1 +1,2 @@
-[x, errors] = newtonIteration(0.6, 1e-5)
+[x, errors] = newtonIteration(3.4, 1e-10)
+plot(errors)

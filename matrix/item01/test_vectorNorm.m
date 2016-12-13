@@ -1,17 +1,17 @@
 x = [4, 4, -4, 4];
-vectorNorm1(x)
-vectorNorm2(x)
-vectorNormInfinite(x)
+vectorNorm1(x);
+vectorNorm2(x);
+vectorNormInfinite(x);
 
 order = 7;
 n = 1;
 for i = 1:order
-    n = 10 * n;
+    n = 10 * n
     x = 1 ./ linspace(1, n, n);
-    norm(x, 1)
-    vectorNorm1(x)
-    norm(x, 2)
-    vectorNorm2(x)
-    norm(x, inf)
-    vectorNormInfinite(x)
+    norm(x, 1);
+    Norm1 = vectorNorm1(x)
+    norm(x, 2);
+    Norm2 = vectorNorm2(x)
+    norm(x, inf);
+    NormInfinite = vectorNormInfinite(x)
 end

@@ -12,7 +12,7 @@ function [x] = gaussSeidel(A, b, initialValues, precision, maxSteps = 100)
     for i = 1:maxSteps
         x = BG * x + f;
         
-        error = abs(x - oldx);
+        error = abs(x - oldx)
         if max(error) < precision
             break
         end

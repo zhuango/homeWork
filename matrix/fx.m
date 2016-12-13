@@ -1,3 +1,3 @@
 function [y] = fx(x)
-    y = -24 / ((1+x).^5);
+    y = log(1 + x) ./ x;
 end

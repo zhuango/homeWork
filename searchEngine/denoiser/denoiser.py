@@ -6,19 +6,19 @@ from goose.text import StopWordsChinese
 import os
 import codecs
 
-url = '/home/laboratory/weblech/sites/news.sina.com.cn/gov/2016-12-20/doc-ifxytqax6749267.shtml'
-urlf = open(url, 'r')
-rawHtml = ''
-for line in urlf: sd
-    rawHtml += line + " "
+# url = '/home/laboratory/weblech/sites/news.sina.com.cn/gov/2016-12-20/doc-ifxytqax6749267.shtml'
+# urlf = open(url, 'r')
+# rawHtml = ''
+# for line in urlf:
+#     rawHtml += line + " "
 #url = 'https://github.com/steinbacher/goose'
 g_cn = Goose({'stopwords_class': StopWordsChinese})
-#g_en = Goose()
-article = g_cn.extract(raw_html=rawHtml)
-print(article.title)
-print(article.meta_description)
-print(article.cleaned_text)
-print(article.top_image.src)
+g_en = Goose()
+# article = g_cn.extract(raw_html=rawHtml)
+# print(article.title)
+# print(article.meta_description)
+# print(article.cleaned_text)
+# print(article.top_image.src)
 
 cleanSitePath = "/home/laboratory/weblech/cleanSites"
 dirtySitePath = "/home/laboratory/weblech/sites"
@@ -43,7 +43,7 @@ def cleanWebPages(dirtySitePath, cleanSitePath):
                 cleanFilePath = os.path.join(cleanSitePath, fileName)
                 cleanedWebpage = codecs.open(cleanFilePath, 'w', "utf-8")
 
-                cleanedWebpage.write(article_cn.title + "\n")
+                cleanedWebpage.write("<title>" + article_cn.title + "</title>\n")
                 cleanedWebpage.writelines(article_cn.meta_description)
                 cleanedWebpage.writelines(article_cn.cleaned_text)
                 cleanedWebpage.writelines(article_en.title)

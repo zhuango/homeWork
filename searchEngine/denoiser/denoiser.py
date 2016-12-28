@@ -6,7 +6,7 @@ from goose.text import StopWordsChinese
 import os
 import codecs
 
-# url = '/home/laboratory/weblech/sites/news.sina.com.cn/gov/2016-12-20/doc-ifxytqax6749267.shtml'
+url = '/home/laboratory/weblech/cleanSites/blog.sina.com.cn/5483xz'
 # urlf = open(url, 'r')
 # rawHtml = ''
 # for line in urlf:
@@ -19,6 +19,26 @@ g_en = Goose()
 # print(article.meta_description)
 # print(article.cleaned_text)
 # print(article.top_image.src)
+rawHtml = ""
+with open (url, 'r') as f:
+    for line in f:
+        rawHtml += line + " " 
+#if isinstance(rawHtml, unicode):
+rawHtml = rawHtml.encode('utf-8')
+article_cn = g_cn.extract(raw_html=rawHtml)
+article_en = g_en.extract(raw_html=rawHtml)
+
+cleanFilePath = "/home/laboratory/weblech/cleanSites/blog.sina.com.cn/testU"
+cleanedWebpage = codecs.open(cleanFilePath, 'w')
+
+cleanedWebpage.write("<title>" + article_cn.title + "</title>\n")
+cleanedWebpage.writelines(article_cn.meta_description)
+cleanedWebpage.writelines(article_cn.cleaned_text)
+cleanedWebpage.writelines(article_en.title)
+cleanedWebpage.writelines(article_en.meta_description)
+cleanedWebpage.writelines(article_en.cleaned_text)
+
+cleanedWebpage.close()
 
 cleanSitePath = "/home/laboratory/weblech/cleanSites"
 dirtySitePath = "/home/laboratory/weblech/sites"

@@ -5,7 +5,7 @@ import MySQLdb
 conn=MySQLdb.connect(host='localhost',user='root',passwd='lab',db='machineLearning',port=3306)
 cur=conn.cursor()
 
-with open('sqls', 'r') as sqlQuery:
+with open('sqls2.sql', 'r') as sqlQuery:
     for line in sqlQuery:
         try:
             result = cur.execute(line.strip())

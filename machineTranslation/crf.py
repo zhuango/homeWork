@@ -94,6 +94,24 @@ class CRF:
 
         return (WnodeGradient, WedgeGradient)
 
+    def Sample(self, sequence):
+        seqLength = sequence.Length
+        getFeature = sequence.GetFeature
+
+        (logPotential0, logPotentials) = self.LogPotentialTable(sequence)
+        labels = np.zeros(seqLength)
+
+        pathMatrix = np.zeros((seqLength, self.mLabelStateSize))
+        w = logPotential0
+        for i in xrange(1, seqLength):
+            w = logPotentials[i]+ numpy.reshape(w, (3, 1))
+            pathMatrix[i] = w.argmax(0)
+            w = w.max(0)
+        labels[-1] = w.argmax()
+        for i in reversed(xrange(0, seqLength - 1)):
+            labels[i] = pathMatrix[i][labels[i + 1]]
+        return labels
+
     def SGA(self, sequences ,iterations=20, a0=10, validate=None):
         rate = 0.1
         for i in xrange(0, len(sequences)):

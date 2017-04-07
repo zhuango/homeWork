@@ -12,3 +12,8 @@ print(", ".join(seg_list))
 
 seg_list = jieba.cut_for_search("小明硕士毕业于中国科学院计算所，后在日本京都大学深造")  # 搜索引擎模式
 print(", ".join(seg_list))
+
+import jieba.posseg as pseg
+words = pseg.cut("我爱北京天安门")
+for word, flag in words:
+    print("".join((word, flag)))

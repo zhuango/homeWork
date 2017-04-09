@@ -135,18 +135,19 @@ class CRF:
 
     def SGA(self, sequences ,iterations=20, a0=10, validate=None):
         rate = 0.1
-        for i in xrange(0, len(sequences)):
-            sequence   = sequences[i]
+        for iter in xrange(0, iterations):
             print("Iteration: " + str(i))
-            (WnodeGradient, WedgeGradient) = self.gradientOfNormalizedRespectW(sequence)
-            self.mWnode -= WnodeGradient * rate
-            self.mWedge -= WedgeGradient * rate
+            for i in xrange(0, len(sequences)):
+                sequence   = sequences[i]
+                (WnodeGradient, WedgeGradient) = self.gradientOfNormalizedRespectW(sequence)
+                self.mWnode -= WnodeGradient * rate
+                self.mWedge -= WedgeGradient * rate
 
-            for j in xrange(0, sequence.Length):
-                for k in xrange(0, self.mLabelStateSize):
-                    self.mWnode += sequence.GetFeature(j, k) * rate
+                for j in xrange(0, sequence.Length):
+                    for k in xrange(0, self.mLabelStateSize):
+                        self.mWnode += sequence.GetFeature(j, k) * rate
 
-            for j in xrange(1, sequence.Length):
-                for k in xrange(0, self.mLabelStateSize):
-                    for l in xrange(0, self.mLabelStateSize):
-                        self.mWedge += sequence.GetFeature(j, k, l) * rate
+                for j in xrange(1, sequence.Length):
+                    for k in xrange(0, self.mLabelStateSize):
+                        for l in xrange(0, self.mLabelStateSize):
+                            self.mWedge += sequence.GetFeature(j, k, l) * rate

@@ -136,7 +136,7 @@ class CRF:
     def SGA(self, sequences ,iterations=20, a0=10, validate=None):
         rate = 0.1
         for iter in xrange(0, iterations):
-            print("Iteration: " + str(i))
+            print("Iteration: " + str(iter))
             for i in xrange(0, len(sequences)):
                 sequence   = sequences[i]
                 (WnodeGradient, WedgeGradient) = self.gradientOfNormalizedRespectW(sequence)

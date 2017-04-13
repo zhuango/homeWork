@@ -4,7 +4,7 @@ import numpy as np
 from collections import defaultdict
 import math
 
-class Sample(object):
+class Sample():
     LabelTable = {}
     WordsTable = {}
     DictLength = 0
@@ -20,11 +20,6 @@ class Sample(object):
             return str(seqNum) + "_" + str(y1State)
             
     def GetFeature(self, seqNum, y1State, y2State = None, train = None):
-        """ Create the vector of active indicies for this label setting. """
-        # label-label-token; bigram features
-        #for f in self.sequence[t].attributes:
-        #    yield '[%s,%s,%s]' % (yp,y,f)
-        # label-token; emission features
         WordsTable = self.WordsTable
         word0  = self.sequence[seqNum]
         if word0 not in WordsTable:

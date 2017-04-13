@@ -4,7 +4,7 @@ import numpy as np
 from collections import OrderedDict
 import math
 
-class Sample(object):
+class Sample():
     LabelTable = OrderedDict()
     WordsTable = OrderedDict()
     DictLength = 0
@@ -73,7 +73,7 @@ class CRFBin:
         for i in range(1, seqLength):
             for j in range(0, self.mLabelStateSize):
                 for k in range(0, self.mLabelStateSize):
-                    node = self.mWnode[sequence.GetFeature(i, j)].sum()
+                    node = self.mWnode[sequence.GetFeature(i, k)].sum()
                     edge = self.mWedge[sequence.GetFeature(i, j, k)].sum()
                     logPotentials[i-1][j][k] = node + edge
         return (logPotential0, logPotentials)
@@ -179,10 +179,10 @@ class CRFBin:
 
                     for j in range(1, sequence.Length):
                         self.mWedge[sequence.GetFeature(j, labels[j-1], labels[j])] += rate
-                    self.mWnode -= self.mWnode * rate * 0.1
-                    self.mWedge -= self.mWedge * rate * 0.1
+                    # self.mWnode -= self.mWnode * rate * 0.1
+                    # self.mWedge -= self.mWedge * rate * 0.1
                 likelihood = 0.0
-                for i in range(0, len(sequences)):
+                for i in range(0, dataSize):
                     sequence = sequences[i]
                     currentLikelihood = self.LogLikelihood(sequence)
                     likelihood += currentLikelihood

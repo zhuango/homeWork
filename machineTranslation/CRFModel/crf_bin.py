@@ -128,12 +128,12 @@ class CRFBin:
 
         for i in range(0, seqLength):
             for j in range(0, self.mLabelStateSize):
-                WnodeGradient[sequence.GetFeature(i, j)] += np.exp(forwardMessages[i][j] + backwardMessages[i][j] - logNormalized)#.clip(0.0, 1.0)
+                WnodeGradient[sequence.GetFeature(i, j)] += np.exp(forwardMessages[i][j] + backwardMessages[i][j] - logNormalized).clip(0.0, 1.0)
         
         for i in range(1, seqLength):
             for j in range(0, self.mLabelStateSize):
                 for k in range(0, self.mLabelStateSize):
-                    WedgeGradient[sequence.GetFeature(i, j, k)] += np.exp(forwardMessages[i-1][j] + logPotentials[i-1][j][k] + backwardMessages[i][k] - logNormalized)#.clip(0.0, 1.0)
+                    WedgeGradient[sequence.GetFeature(i, j, k)] += np.exp(forwardMessages[i-1][j] + logPotentials[i-1][j][k] + backwardMessages[i][k] - logNormalized).clip(0.0, 1.0)
 
         # print(WnodeGradient, WedgeGradient)
         return (WnodeGradient, WedgeGradient)
@@ -170,6 +170,7 @@ class CRFBin:
                 for i in range(0, dataSize):
                     sequence   = sequences[i]
                     labels     = sequence.Labels
+                    #print("cal gradient of normalize respect W ...")
                     (WnodeGradient, WedgeGradient) = self.gradientOfNormalizedRespectW(sequence)
                     self.mWnode -= WnodeGradient * rate
                     self.mWedge -= WedgeGradient * rate
@@ -181,12 +182,14 @@ class CRFBin:
                         self.mWedge[sequence.GetFeature(j, labels[j-1], labels[j])] += rate
                     # self.mWnode -= self.mWnode * rate * 0.1
                     # self.mWedge -= self.mWedge * rate * 0.1
+
+                print("cal loglikehood ...")
                 likelihood = 0.0
                 for i in range(0, dataSize):
                     sequence = sequences[i]
                     currentLikelihood = self.LogLikelihood(sequence)
                     likelihood += currentLikelihood
-                    print(currentLikelihood)
+                    #print(currentLikelihood)
                 print("Loglihood: " + str(float(likelihood) / dataSize))
                 if likelihood <= oldLikelihood:
                     earlyStopCount -= 1

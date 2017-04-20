@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <math.h>
 #include <cstring>
+#include <memory>
 
 using namespace std;
 
@@ -16,7 +17,7 @@ namespace CRFModel
     const int InvalidState = -1;
     typedef vector<int> VectorInt;
     typedef vector<double> Vector;
-    //typedef std::auto_ptr<vector<int> > SmartVectorIntPointer;
+    typedef std::unique_ptr<vector<int> > SmartVectorIntPointer;
     typedef vector<vector<double> > Matrix;
     typedef vector<vector<int> > MatrixInt;
 
@@ -124,7 +125,9 @@ namespace CRFModel
                 double edge  = 0;
                 double node  = 0;
                 size_t seqLength = sequence.Sequence->size();
+                
                 PotentialTable *potentialTable = new PotentialTable(mLabelStateSize, seqLength-1, mLabelStateSize, mLabelStateSize);
+
                 for(size_t i = 0; i < mLabelStateSize; ++i)
                 {
                     potentialTable->Log0[i] = product(sequence.GetFeature(0, i));
@@ -151,8 +154,8 @@ namespace CRFModel
                 size_t seqLength = sequence.Sequence->size();
                 const VectorInt seqStates = *(sequence.Labels);
 
-                PotentialTable * potentialTable = LogPotentialTable(sequence);
-                Matrix *messages = forward(potentialTable, seqLength);
+                std::unique_ptr<PotentialTable> potentialTable(LogPotentialTable(sequence));
+                std::unique_ptr<Matrix> messages(forward(*potentialTable, seqLength));
                 
                 double maxProb = *(max_element((*messages)[seqLength-1].begin(), (*messages)[seqLength-1].end()));
                 double tempMargin = 0.0;
@@ -293,7 +296,7 @@ namespace CRFModel
                 }
                 return result;
             }
-            Matrix *forward(PotentialTable *potentialTable, size_t seqLength)
+            Matrix *forward(PotentialTable &potentialTable, size_t seqLength)
             {
                 double tempMeg  = 0.0;
                 double temp     = 0.0;
@@ -302,17 +305,17 @@ namespace CRFModel
                 Vector Fs(mLabelStateSize, 0.0);
 
                 Matrix *message = new Matrix(seqLength, Vector(mLabelStateSize, 0.0));
-                copy(potentialTable->Log0, potentialTable->Log0 + mLabelStateSize, (*message)[0].begin());
+                copy(potentialTable.Log0, potentialTable.Log0 + mLabelStateSize, (*message)[0].begin());
                 for(int i = 1; i < seqLength; ++i)
                 {
                     for(int j = 0; j < mLabelStateSize; ++j)
                     {
                         tempMeg = 0.0;
-                        index   = (i-1) * potentialTable->LogsSize1 * potentialTable->LogsSize2 + j;
+                        index   = (i-1) * potentialTable.LogsSize1 * potentialTable.LogsSize2 + j;
 
                         for(int k = 0; k < mLabelStateSize; ++k)
                         {
-                            Fs[k] = potentialTable->Logs[index + k*potentialTable->LogsSize2] + (*message)[i-1][k];
+                            Fs[k] = potentialTable.Logs[index + k*potentialTable.LogsSize2] + (*message)[i-1][k];
                         }
                         maxProb = *(max_element(Fs.begin(), Fs.end()));
 
@@ -325,7 +328,7 @@ namespace CRFModel
                 }
                 return message;
             }
-            Matrix *backward(PotentialTable *potentialTable, int seqLength)
+            Matrix *backward(PotentialTable &potentialTable, int seqLength)
             {
                 double tempMeg  = 0.0;
                 double temp     = 0.0;
@@ -339,12 +342,12 @@ namespace CRFModel
                     for(int j = 0; j < mLabelStateSize; ++j)
                     {
                         tempMeg = 0.0;
-                        index   = i * potentialTable->LogsSize1 * potentialTable->LogsSize2 + 
-                                  j * potentialTable->LogsSize2;
+                        index   = i * potentialTable.LogsSize1 * potentialTable.LogsSize2 + 
+                                  j * potentialTable.LogsSize2;
 
                         for(int k = 0; k < mLabelStateSize; ++k)
                         {
-                            Fs[k] = potentialTable->Logs[index + k] + (*message)[i+1][k];
+                            Fs[k] = potentialTable.Logs[index + k] + (*message)[i+1][k];
                         }
                         maxProb = *(max_element(Fs.begin(), Fs.end()));
 
@@ -364,9 +367,9 @@ namespace CRFModel
                 const vector<int> * const labels = sequence.Labels;
                 int index = 0;
 
-                PotentialTable *potentialTable = LogPotentialTable(sequence);
-                Matrix *forwardMessages  = forward(potentialTable, seqLength);
-                Matrix *backwardMessages = backward(potentialTable, seqLength);
+                std::unique_ptr<PotentialTable> potentialTable(LogPotentialTable(sequence));
+                std::unique_ptr<Matrix> forwardMessages(forward(*potentialTable, seqLength));
+                std::unique_ptr<Matrix> backwardMessages(backward(*potentialTable, seqLength));
 
                 double maxProb = *(max_element((*forwardMessages)[seqLength-1].begin(), (*forwardMessages)[seqLength-1].end()));
                 double tempMargin = 0.0;
@@ -376,8 +379,8 @@ namespace CRFModel
                 }
                 double logNormalizedTerm = log(tempMargin) + maxProb;
 
-                Vector *WnodeGradient = new Vector(mNodeFeatureSize, 0.0);
-                Vector *WedgeGradient = new Vector(mEdgeFeatureSize, 0.0);
+                std::unique_ptr<Vector> WnodeGradient(new Vector(mNodeFeatureSize, 0.0));
+                std::unique_ptr<Vector> WedgeGradient(new Vector(mEdgeFeatureSize, 0.0));
 
                 for(int i = 0; i < seqLength; ++i)
                 {
@@ -413,9 +416,10 @@ namespace CRFModel
                 {
                     mWedge[i] -= (*WedgeGradient)[i] * rate;
                 }
+
                 for(int i = 0; i < seqLength; ++i)
                 {
-                    VectorInt *temp = sequence.GetFeature(i, (*labels)[i]);
+                    std::unique_ptr<VectorInt> temp(sequence.GetFeature(i, (*labels)[i]));
                     for(auto &elem : *temp)
                     {
                         mWnode[elem] += rate;
@@ -423,15 +427,12 @@ namespace CRFModel
                 }
                 for(int i = 1; i < seqLength; ++i)
                 {
-                    VectorInt *temp = sequence.GetFeature(i, (*labels)[i-1], (*labels)[i]);
+                    std::unique_ptr<VectorInt> temp(sequence.GetFeature(i, (*labels)[i-1], (*labels)[i]));
                     for(auto &elem : *temp)
                     {
                         mWedge[elem] += rate;
                     }
-                    delete temp;
                 }
-                delete WnodeGradient;
-                delete WedgeGradient;
             }
             
     };

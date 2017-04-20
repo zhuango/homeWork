@@ -1,4 +1,4 @@
-//#include "testCRF.cpp"
+#include "crf.cpp"
 #include <iostream>
 #include <string>
 #include <map>
@@ -6,58 +6,98 @@
 #include <tuple>
 #include <vector>
 #include <algorithm>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
+using namespace CRFModel;
 
-class Test
+vector<string> split(string line, char delim)
 {
-    public:
-    int a = 10;
-    static int b;
-    double *const c;
-    Test()
-    :c(new double)
+    istringstream toLine(line);
+    vector<string> tokens;
+    string item;
+    while(getline(toLine, item, delim))
     {
+        tokens.push_back(item);
     }
-    int getB()
+    return tokens;
+}
+
+vector<Seq*> *load(string filename)
+{
+    vector<Seq*> *data = new vector<Seq*>();
+    size_t maxLen = 0;
+    string line;
+    ifstream file(filename.c_str());
+    size_t index = 0;
+    while(getline(file, line))
     {
-        return b;
+        vector<string> *wordSeq = new vector<string>();
+        VectorInt *labels = new VectorInt();
+        vector<string> tokens = split(line, ' ');
+
+        for(string &str : tokens)
+        {
+            if (str == "")
+            {
+                continue;
+            }
+            vector<string> word_label = split(str, '/');
+            size_t pos = word_label[1].find(']');
+            if (pos != std::string::npos)
+            {
+                word_label[1] = word_label[1].substr(0, pos);
+            }
+            wordSeq->push_back(word_label[0]);
+            labels->push_back(Seq::LabelTable[word_label[1]]);
+        }
+        size_t currentSeqLength = wordSeq->size();
+        if (currentSeqLength > maxLen)
+        {
+            maxLen = currentSeqLength;
+        }
+        data->push_back(new Seq(wordSeq, labels));
+        
+        if((++index) == 30)
+        {
+            Seq::MaxLength = maxLen;
+            return data;
+        }
     }
-};
-int Test::b = 100;
-
-const int s = 11;
-
-int getInt(int a, int b = s)
-{
-    return b;
+    Seq::MaxLength = maxLen;
+    return data;
 }
-auto makeTuple()
+
+int main()
 {
-    return make_tuple("zliag", 12, 12.3, "sdfff");
-}
-int main(void)
-{
-    cout << pow(12, 2) << endl;
+    string trainCorpus = "/home/laboratory/github/homeWork/machineTranslation/data/train.txt";
+    string testCorpus  = "/home/laboratory/github/homeWork/machineTranslation/data/test.txt";
+    cout << "cache label..." << endl;
+    ifstream labels;
+    labels.open("/home/laboratory/github/homeWork/machineTranslation/data/label.1.txt");
+    int index = 0;
+    string line;
+    while(getline(labels, line))
+    {
+        vector<string> tokens = split(line, ' ');
+        istringstream ss(tokens[0]);
+        ss >> index;
+        Seq::LabelTable.insert(pair<string, int>(tokens[1], index));
+    }
+    
+    cout << "load train data..." << endl;
+    vector<Seq*> *train = load("/home/laboratory/github/homeWork/machineTranslation/data/train.txt");
 
-    Test t;
-    cout << t.a << endl;
-    cout << t.getB() << endl;
-    cout << getInt(1) << endl;
-    map<string, int> m;
-    m.insert(pair<string, int>("liuzhuang", 129));
-    cout << m.size() << endl;
+    cout << "load test data ..." << endl;
+    vector<Seq*> *test = load("/home/laboratory/github/homeWork/machineTranslation/data/test.txt");
 
-    int *const b = new int;
-    delete b;
+    size_t nodeFeatureSize = Seq::LabelTable.size() * Seq::WordsTable.size();
+    size_t edgeDeatureSize = Seq::LabelTable.size() * Seq::LabelTable.size() * Seq::WordsTable.size();
 
-    auto tup = makeTuple();
-    cout << std::get<1>(tup) << endl;
-    cout << std::get<2>(tup) << endl;
-    vector<vector<vector<int> > > tensor;
 
-    cout << log(1) << endl;
+    CRFBin crf(nodeFeatureSize, edgeDeatureSize, Seq::LabelTable.size());
+    crf.SGA(*train, 1000, 1);
 
-    vector<int> *r = new vector<int>(2, 21);
-    cout << r->operator[](1) << endl;
+    return 0;
 }

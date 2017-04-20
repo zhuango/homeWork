@@ -57,4 +57,7 @@ int main(void)
     vector<vector<vector<int> > > tensor;
 
     cout << log(1) << endl;
+
+    vector<int> *r = new vector<int>(2, 21);
+    cout << r->operator[](1) << endl;
 }

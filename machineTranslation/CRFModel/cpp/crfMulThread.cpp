@@ -417,23 +417,20 @@ namespace CRFModel
                 return message;
             }
 
-            static void calEdgeGradient(
+            void calEdgeGradient(
                 int i,
-                double *WedgeGradient,
-                size_t labelStateSize,
                 PotentialTable *potentialTable,
                 Seq &sequence,
                 Matrix *forwardMessages,
                 Matrix *backwardMessages,
-                double logNormalizedTerm,
-                mutex *mtx
+                double logNormalizedTerm
             )
             {
                 std::unique_ptr<VectorInt> feature5;
                 int index = 0;
-                for(int j = 0; j < labelStateSize; ++j)
+                for(int j = 0; j < mLabelStateSize; ++j)
                 {
-                    for(int k = 0; k < labelStateSize; ++k)
+                    for(int k = 0; k < mLabelStateSize; ++k)
                     {
                         index = (i-1) * potentialTable->LogsSize1 * potentialTable->LogsSize2 +
                                 j     * potentialTable->LogsSize2 + k;
@@ -441,9 +438,9 @@ namespace CRFModel
                         for(auto &elem : *feature5)
                         {
                             //cout << i << endl;
-                            mtx[elem].lock();
-                            WedgeGradient[elem] += exp((*forwardMessages)[i-1][j] + potentialTable->Logs[index] + (*backwardMessages)[i][k] - logNormalizedTerm);
-                            mtx[elem].unlock();
+                            mEdgeMutex[elem].lock();
+                            mWedgeGradient[elem] += exp((*forwardMessages)[i-1][j] + potentialTable->Logs[index] + (*backwardMessages)[i][k] - logNormalizedTerm);
+                            mEdgeMutex[elem].unlock();
                         }
                     }
                 }
@@ -487,16 +484,19 @@ namespace CRFModel
                 for(int i = 1; i < seqLength; ++i)
                 {
                     threadPool.push_back(new thread(
-                        CRFBin::calEdgeGradient,
-                        i,
-                        mWedgeGradient,
-                        mLabelStateSize,
-                        potentialTable.get(),
-                        std::ref(sequence),
-                        forwardMessages.get(),
-                        backwardMessages.get(),
-                        logNormalizedTerm,
-                        mEdgeMutex));
+                        [this, &potentialTable, &sequence, &forwardMessages, &backwardMessages, logNormalizedTerm](int i)
+                        {
+                            this->calEdgeGradient(
+                                i,
+                                potentialTable.get(),
+                                std::ref(sequence),
+                                forwardMessages.get(),
+                                backwardMessages.get(),
+                                logNormalizedTerm
+                            );
+                        },
+                        i
+                    ));
                 };
                 for(auto th : threadPool)
                 {

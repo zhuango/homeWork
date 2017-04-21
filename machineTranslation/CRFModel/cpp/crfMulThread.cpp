@@ -268,7 +268,7 @@ namespace CRFModel
                     cout << "Iteration: " << i << endl;
 
                     //performance/////////
-                    // clock_t start = clock();
+                    clock_t start = clock();
                     //performance/////////
 
                     for(int j = 0; j < dataSize; ++j)
@@ -277,9 +277,9 @@ namespace CRFModel
                     }
 
                     //performance/////////
-                    // clock_t calGredient = clock() - start;
-                    // cout << "update: " << float(calGredient)/CLOCKS_PER_SEC << endl;
-                    // calGredient = clock();
+                    clock_t calGredient = clock() - start;
+                    cout << "update: " << float(calGredient)/CLOCKS_PER_SEC << endl;
+                    calGredient = clock();
                     //performance/////////
                     
                     cout << "Cal loglikehood.." << endl;
@@ -470,7 +470,7 @@ namespace CRFModel
                         mWedgeGradient,
                         mLabelStateSize,
                         potentialTable.get(),
-                        sequence,
+                        std::ref(sequence),
                         forwardMessages.get(),
                         backwardMessages.get(),
                         logNormalizedTerm));

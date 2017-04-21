@@ -262,10 +262,21 @@ namespace CRFModel
                     double rate = a0 / (sqrt(i) + 1);
                     cout << "rate = " << rate << endl;
                     cout << "Iteration: " << i << endl;
+
+                    //performance/////////
+                    clock_t start = clock();
+                    //performance/////////
+                        
                     for(int j = 0; j < dataSize; ++j)
                     {
                         update(*sequences[j], rate);
-                    }
+                    }               
+                        
+                    //performance/////////
+                    clock_t calGredient = clock() - start;
+                    cout << "update: " << float(calGredient)/CLOCKS_PER_SEC << endl;
+                    calGredient = clock();
+                    //performance/////////
                     
                     cout << "Cal loglikehood.." << endl;
                     double likelihood = 0.0;

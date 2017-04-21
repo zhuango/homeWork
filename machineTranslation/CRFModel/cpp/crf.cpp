@@ -195,7 +195,7 @@ namespace CRFModel
                 int maxarg = 0;
                 PotentialTable * potentialTable = LogPotentialTable(sequence);
                 VectorInt *labels = new VectorInt(seqLength, 0);
-                MatrixInt path(seqLength, VectorInt(seqLength, 0));
+                MatrixInt path(seqLength, VectorInt(mLabelStateSize, 0));
                 double *tempPotential = new double[potentialTable->Log0Size];
                 double *prevPotential = new double[potentialTable->Log0Size];
                 double *currPotential = new double[potentialTable->Log0Size];
@@ -237,6 +237,11 @@ namespace CRFModel
                 {
                     (*labels)[i] = path[i][(*labels)[i + 1]];
                 }
+
+                delete[] currPotential;
+                delete[] prevPotential;
+                delete[] tempPotential;
+                delete potentialTable;
 
                 return labels;
             }

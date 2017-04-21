@@ -138,25 +138,24 @@ namespace CRFModel
                 std::unique_ptr<VectorInt> feature;
                 PotentialTable *potentialTable = new PotentialTable(mLabelStateSize, seqLength-1, mLabelStateSize, mLabelStateSize);
 
-                for(size_t i = 0; i < mLabelStateSize; ++i)
+                for(int i = 0; i < mLabelStateSize; ++i)
                 {
                     feature.reset(sequence.GetFeature(0, i));
                     potentialTable->Log0[i] = product(*feature);
                 }
-                for(size_t i = 1; i < seqLength; ++i)
+                for(int i = 1; i < seqLength; ++i)
                 {
-                    for(size_t j = 0; j < mLabelStateSize; ++j)
+                    for(int j = 0; j < mLabelStateSize; ++j)
                     {
-                        for(size_t k = 0; k < mLabelStateSize; ++k)
+                        for(int k = 0; k < mLabelStateSize; ++k)
                         {
-                            index = (i-1) * potentialTable->LogsSize1 * potentialTable->LogsSize2 +
-                                    j     * potentialTable->LogsSize2 + k;
-                            
                             feature.reset(sequence.GetFeature(i, k));
                             node  = product(*feature);
                             feature.reset(sequence.GetFeature(i, j, k));
                             edge  = product(*feature, false);
                             
+                            index = (i-1) * potentialTable->LogsSize1 * potentialTable->LogsSize2 +
+                                    j     * potentialTable->LogsSize2 + k;
                             potentialTable->Logs[index] = node + edge;
                         }
                     }
@@ -320,7 +319,7 @@ namespace CRFModel
             {
                 double tempMeg  = 0.0;
                 double temp     = 0.0;
-                size_t index    = 0;
+                int index    = 0;
                 double maxProb  = 0.0;
                 Vector Fs(mLabelStateSize, 0.0);
 
@@ -352,7 +351,7 @@ namespace CRFModel
             {
                 double tempMeg  = 0.0;
                 double temp     = 0.0;
-                size_t index    = 0;
+                int index    = 0;
                 double maxProb  = 0.0;
                 Vector Fs(mLabelStateSize, 0.0);
 

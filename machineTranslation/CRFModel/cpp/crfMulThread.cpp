@@ -284,10 +284,31 @@ namespace CRFModel
                     
                     cout << "Cal loglikehood.." << endl;
                     double likelihood = 0.0;
+                    vector<thread*> threadPool;
+                    mutex mtx;
                     for(int j = 0; j < dataSize; ++j)
                     {
-                        likelihood += Loglikelihood(*sequences[j]);
+                        threadPool.push_back(new thread(
+                            [&sequences, &mtx, &likelihood, this](int j)
+                            {
+                                double likelood = this->Loglikelihood(*sequences[j]);
+                                mtx.lock();
+                                likelihood += likelood;
+                                mtx.unlock();
+                            },
+                            j
+                        ));
                     }
+                    for(auto thread : threadPool)
+                    {
+                        thread->join();
+                    }
+                    for(int i = 0; i < threadPool.size(); ++i)
+                    {
+                        delete threadPool[i];
+                    }
+                    threadPool.clear();
+
                     cout << "Loglihood: " << likelihood / dataSize << endl;
                     if (likelihood <= oldLikelihood)
                     {
@@ -404,7 +425,8 @@ namespace CRFModel
                 Seq &sequence,
                 Matrix *forwardMessages,
                 Matrix *backwardMessages,
-                double logNormalizedTerm
+                double logNormalizedTerm,
+                mutex *mtx
             )
             {
                 std::unique_ptr<VectorInt> feature5;
@@ -419,9 +441,9 @@ namespace CRFModel
                         for(auto &elem : *feature5)
                         {
                             //cout << i << endl;
-                            //mEdgeMutex[elem].lock();
+                            mtx[elem].lock();
                             WedgeGradient[elem] += exp((*forwardMessages)[i-1][j] + potentialTable->Logs[index] + (*backwardMessages)[i][k] - logNormalizedTerm);
-                            //mEdgeMutex[elem].unlock();
+                            mtx[elem].unlock();
                         }
                     }
                 }
@@ -473,12 +495,18 @@ namespace CRFModel
                         std::ref(sequence),
                         forwardMessages.get(),
                         backwardMessages.get(),
-                        logNormalizedTerm));
+                        logNormalizedTerm,
+                        mEdgeMutex));
                 };
                 for(auto th : threadPool)
                 {
                     th->join();
                 }
+                for(int i = 0; i < threadPool.size(); ++i)
+                {
+                    delete threadPool[i];
+                }
+                threadPool.clear();
 
                 for(int i = 0; i < mNodeFeatureSize; ++i)
                 {

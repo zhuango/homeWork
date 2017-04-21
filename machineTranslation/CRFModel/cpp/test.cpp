@@ -52,7 +52,7 @@ void testPotential()
 }
 int main(void)
 {
-    testPotential();
+    //testPotential();
 
     cout << pow(12, 2) << endl;
 
@@ -77,12 +77,18 @@ int main(void)
     vector<int> *r = new vector<int>(2, 21);
     cout << r->operator[](1) << endl;
 
-    for (int j = 0; j < 50; ++j)
+    // for (int j = 0; j < 50; ++j)
+    // {
+    //     vector<int> * vec = new vector<int>(10000, 133);
+    //     //std::unique_ptr<vector<int> > vec(new vector<int>(10000, 133));
+    //     std::this_thread::sleep_for(std::chrono::seconds(3));
+    //     cout << "new" << endl;
+    // }
+    cout << "DDDDDDDDDDDDDDDDDDDDDDDDD" << endl;
+    for_each(r->begin(), r->end(), [](int &i){i+=2;});
+    for(auto &i : *r)
     {
-        vector<int> * vec = new vector<int>(10000, 133);
-        //std::unique_ptr<vector<int> > vec(new vector<int>(10000, 133));
-        std::this_thread::sleep_for(std::chrono::seconds(3));
-        cout << "new" << endl;
+        cout << i << endl;
     }
 
 }

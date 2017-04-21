@@ -113,6 +113,8 @@ namespace CRFModel
             {
                 mWnode = new double[nodeFeatureSize];
                 mWedge = new double[edgeFeatureSize];
+                mWnodeGradient = new double[nodeFeatureSize];
+                mWedgeGradient = new double[edgeFeatureSize];
                 memset(mWnode, 0.0, nodeFeatureSize);
                 memset(mWedge, 0.0, edgeFeatureSize);
 
@@ -120,7 +122,13 @@ namespace CRFModel
                 mEdgeFeatureSize = edgeFeatureSize;
                 mLabelStateSize  = labelStateSize;
             }
-            
+            ~CRFBin()
+            {
+                delete[] mWnode;
+                delete[] mWedge;
+                delete[] mWnodeGradient;
+                delete[] mWedgeGradient;
+            }
             PotentialTable *LogPotentialTable(Seq &sequence)
             {
                 int    index = 0;
@@ -373,6 +381,7 @@ namespace CRFModel
                 }
                 return message;
             }
+
             void update(Seq &sequence, double rate)
             {
                 size_t seqLength = sequence.Sequence->size();
@@ -392,8 +401,8 @@ namespace CRFModel
                 }
                 double logNormalizedTerm = log(tempMargin) + maxProb;
 
-                std::unique_ptr<Vector> WnodeGradient(new Vector(mNodeFeatureSize, 0.0));
-                std::unique_ptr<Vector> WedgeGradient(new Vector(mEdgeFeatureSize, 0.0));
+                for_each(mWnodeGradient, mWnodeGradient + mNodeFeatureSize, [](double &i){i=0.0;});
+                for_each(mWedgeGradient, mWedgeGradient + mEdgeFeatureSize, [](double &i){i=0.0;});
 
                 for(int i = 0; i < seqLength; ++i)
                 {
@@ -402,7 +411,7 @@ namespace CRFModel
                         feature.reset(sequence.GetFeature(i, j));
                         for(auto &elem : *feature)
                         {
-                            (*WnodeGradient)[elem] += exp((*forwardMessages)[i][j] + (*backwardMessages)[i][j] - logNormalizedTerm);
+                            mWnodeGradient[elem] += exp((*forwardMessages)[i][j] + (*backwardMessages)[i][j] - logNormalizedTerm);
                         }
                     }
                 }
@@ -418,18 +427,18 @@ namespace CRFModel
                             feature.reset(sequence.GetFeature(i, j ,k));
                             for(auto &elem : *feature)
                             {
-                                (*WedgeGradient)[elem] += exp((*forwardMessages)[i-1][j] + potentialTable->Logs[index] + (*backwardMessages)[i][k] - logNormalizedTerm);
+                                mWedgeGradient[elem] += exp((*forwardMessages)[i-1][j] + potentialTable->Logs[index] + (*backwardMessages)[i][k] - logNormalizedTerm);
                             }
                         }
                     }
                 }
                 for(int i = 0; i < mNodeFeatureSize; ++i)
                 {
-                    mWnode[i] -= (*WnodeGradient)[i] * rate;
+                    mWnode[i] -= mWnodeGradient[i] * rate;
                 }
                 for(int i = 0; i < mEdgeFeatureSize; ++i)
                 {
-                    mWedge[i] -= (*WedgeGradient)[i] * rate;
+                    mWedge[i] -= mWedgeGradient[i] * rate;
                 }
 
                 for(int i = 0; i < seqLength; ++i)

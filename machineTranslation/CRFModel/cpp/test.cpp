@@ -6,7 +6,10 @@
 #include <tuple>
 #include <vector>
 #include <algorithm>
-
+#include <memory>
+#include <thread>
+#include "crf.cpp"
+using namespace CRFModel;
 using namespace std;
 
 class Test
@@ -36,8 +39,21 @@ auto makeTuple()
 {
     return make_tuple("zliag", 12, 12.3, "sdfff");
 }
+void testPotential()
+{
+    for(int i = 0; i < 100; ++i)
+    {
+        std::unique_ptr<Matrix> message(new Matrix(10, Vector(100, 0.0)));
+        //PotentialTable *p = new PotentialTable(100, 10, 100, 100);
+        //std::unique_ptr<PotentialTable> p(new PotentialTable(100, 10, 100, 100));
+        cout << "sleep for 3 sec..." << endl;
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+    }
+}
 int main(void)
 {
+    testPotential();
+
     cout << pow(12, 2) << endl;
 
     Test t;
@@ -60,4 +76,13 @@ int main(void)
 
     vector<int> *r = new vector<int>(2, 21);
     cout << r->operator[](1) << endl;
+
+    for (int j = 0; j < 50; ++j)
+    {
+        vector<int> * vec = new vector<int>(10000, 133);
+        //std::unique_ptr<vector<int> > vec(new vector<int>(10000, 133));
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        cout << "new" << endl;
+    }
+
 }

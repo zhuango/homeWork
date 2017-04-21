@@ -224,7 +224,7 @@ namespace CRFModel
                     currPotential = prevPotential;
                     prevPotential = tempForSwap;
                 }
-                maxarg= 0;   
+                maxarg= 0;
                 for(int i = 1; i < mLabelStateSize; ++i)
                 {
                     if (prevPotential[i] > prevPotential[maxarg])

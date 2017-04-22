@@ -275,12 +275,6 @@ namespace CRFModel
                     {
                         update(*sequences[j], rate);
                     }
-
-                    //performance/////////
-                    clock_t calGredient = clock() - start;
-                    cout << "update: " << float(calGredient)/CLOCKS_PER_SEC << endl;
-                    calGredient = clock();
-                    //performance/////////
                     
                     cout << "Cal loglikehood.." << endl;
                     double likelihood = 0.0;
@@ -320,6 +314,12 @@ namespace CRFModel
                         earlyStopCount = 3;
                     }
 
+                    //performance/////////
+                    clock_t calGredient = clock() - start;
+                    cout << "update: " << float(calGredient)/CLOCKS_PER_SEC << endl;
+                    calGredient = clock();
+                    //performance/////////
+                    cout << "===========================================" << endl;
                     oldLikelihood = likelihood;
                 }
             }

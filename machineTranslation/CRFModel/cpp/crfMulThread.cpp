@@ -10,7 +10,7 @@
 #include <cstring>
 #include <memory>
 #include <mutex>
-//for test
+#include <atomic>
 #include <thread>
 
 using namespace std;
@@ -20,7 +20,7 @@ namespace CRFModel
     const int InvalidState = -1;
     typedef vector<int> VectorInt;
     typedef vector<double> Vector;
-    typedef std::unique_ptr<vector<int> > SmartVectorIntPointer;
+    typedef unique_ptr<vector<int> > SmartVectorIntPointer;
     typedef vector<vector<double> > Matrix;
     typedef vector<vector<int> > MatrixInt;
 
@@ -123,7 +123,8 @@ namespace CRFModel
                 mEdgeFeatureSize = edgeFeatureSize;
                 mLabelStateSize  = labelStateSize;
 
-                mEdgeMutex = new mutex[edgeFeatureSize];
+                mEdgeFlag = new atomic_flag[edgeFeatureSize];
+                memset(mEdgeFlag, 0, edgeFeatureSize);
             }
             ~CRFBin()
             {
@@ -131,7 +132,7 @@ namespace CRFModel
                 delete[] mWedge;
                 delete[] mWnodeGradient;
                 delete[] mWedgeGradient;
-                delete[] mEdgeMutex;
+                delete[] mEdgeFlag;
             }
             PotentialTable *LogPotentialTable(Seq &sequence)
             {
@@ -139,7 +140,7 @@ namespace CRFModel
                 double edge  = 0;
                 double node  = 0;
                 size_t seqLength = sequence.Sequence->size();
-                std::unique_ptr<VectorInt> feature;
+                unique_ptr<VectorInt> feature;
                 PotentialTable *potentialTable = new PotentialTable(mLabelStateSize, seqLength-1, mLabelStateSize, mLabelStateSize);
 
                 for(int i = 0; i < mLabelStateSize; ++i)
@@ -172,8 +173,8 @@ namespace CRFModel
                 size_t seqLength = sequence.Sequence->size();
                 const VectorInt seqStates = *(sequence.Labels);
 
-                std::unique_ptr<PotentialTable> potentialTable(LogPotentialTable(sequence));
-                std::unique_ptr<Matrix> messages(forward(*potentialTable, seqLength));
+                unique_ptr<PotentialTable> potentialTable(LogPotentialTable(sequence));
+                unique_ptr<Matrix> messages(forward(*potentialTable, seqLength));
                 
                 double maxProb = *(max_element((*messages)[seqLength-1].begin(), (*messages)[seqLength-1].end()));
                 double tempMargin = 0.0;
@@ -320,7 +321,11 @@ namespace CRFModel
                     calGredient = clock();
                     //performance/////////
                     cout << "===========================================" << endl;
-                    oldLikelihood = likelihood;
+                    oldLikelihood = likelihood;                    
+                    if (abs(likelihood) < 0.01)
+                    {
+                        return ;
+                    }
                 }
             }
         private:
@@ -331,7 +336,9 @@ namespace CRFModel
             size_t  mLabelStateSize;
             size_t  mNodeFeatureSize;
             size_t  mEdgeFeatureSize;
-            mutex   *mEdgeMutex;
+            atomic_flag *mEdgeFlag;
+
+            size_t testMulThread = 0;
 
             double product(VectorInt &indexVector, bool isNode=true)
             {
@@ -426,7 +433,7 @@ namespace CRFModel
                 double logNormalizedTerm
             )
             {
-                std::unique_ptr<VectorInt> feature5;
+                unique_ptr<VectorInt> feature5;
                 int index = 0;
                 for(int j = 0; j < mLabelStateSize; ++j)
                 {
@@ -437,10 +444,12 @@ namespace CRFModel
                         feature5.reset(sequence.GetFeature(i, j ,k));
                         for(auto &elem : *feature5)
                         {
-                            //cout << i << endl;
-                            mEdgeMutex[elem].lock();
+                            while(mEdgeFlag[elem].test_and_set())
+                            {
+                                this_thread::yield();
+                            }
                             mWedgeGradient[elem] += exp((*forwardMessages)[i-1][j] + potentialTable->Logs[index] + (*backwardMessages)[i][k] - logNormalizedTerm);
-                            mEdgeMutex[elem].unlock();
+                            mEdgeFlag[elem].clear();
                         }
                     }
                 }
@@ -451,10 +460,10 @@ namespace CRFModel
                 const vector<int> * const labels = sequence.Labels;
                 int index = 0;
 
-                std::unique_ptr<PotentialTable> potentialTable(LogPotentialTable(sequence));
-                std::unique_ptr<Matrix> forwardMessages(forward(*potentialTable, seqLength));
-                std::unique_ptr<Matrix> backwardMessages(backward(*potentialTable, seqLength));
-                std::unique_ptr<VectorInt> feature;
+                unique_ptr<PotentialTable> potentialTable(LogPotentialTable(sequence));
+                unique_ptr<Matrix> forwardMessages(forward(*potentialTable, seqLength));
+                unique_ptr<Matrix> backwardMessages(backward(*potentialTable, seqLength));
+                unique_ptr<VectorInt> feature;
 
                 double maxProb = *(max_element((*forwardMessages)[seqLength-1].begin(), (*forwardMessages)[seqLength-1].end()));
                 double tempMargin = 0.0;
@@ -489,7 +498,7 @@ namespace CRFModel
                             this->calEdgeGradient(
                                 i,
                                 potentialTable.get(),
-                                std::ref(sequence),
+                                ref(sequence),
                                 forwardMessages.get(),
                                 backwardMessages.get(),
                                 logNormalizedTerm

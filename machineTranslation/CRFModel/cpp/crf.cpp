@@ -297,6 +297,10 @@ namespace CRFModel
                     cout << "===========================================" << endl;
 
                     oldLikelihood = likelihood;
+                    if (abs(likelihood) < 0.01)
+                    {
+                        return ;
+                    }
                 }
             }
         private:

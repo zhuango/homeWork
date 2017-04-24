@@ -22,7 +22,6 @@ namespace CRFModel
     const int InvalidState = -1;
     typedef vector<int> VectorInt;
     typedef vector<double> Vector;
-    typedef unique_ptr<vector<int> > SmartVectorIntPointer;
     typedef vector<vector<double> > Matrix;
     typedef vector<vector<int> > MatrixInt;
 

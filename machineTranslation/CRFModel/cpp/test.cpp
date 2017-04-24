@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <memory>
 #include <thread>
+#include <mutex>
+#include <atomic>
 #include "crf.cpp"
 using namespace CRFModel;
 using namespace std;
@@ -89,6 +91,23 @@ int main(void)
     for(auto &i : *r)
     {
         cout << i << endl;
+    }
+    int atomicNumber = 100;
+    std::atomic<bool> foo[atomicNumber];
+    mutex mtx;
+    cout << "atomic : " << sizeof(foo[2])  << endl;
+    cout << "mutex  : " << sizeof(mtx) << endl;
+    for(auto &a : foo)
+    {
+        if(a == false)
+        {
+            cout << " " << a << endl;
+        }
+    }
+    cout <<"atomic flag size: " << sizeof(std::atomic_flag) << endl;
+    while(true)
+    {
+
     }
 
 }

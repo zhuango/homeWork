@@ -9,4 +9,5 @@
 !*.py
 !*.java
 !*.sql
+!*.hpp
 !LICENSE

@@ -13,6 +13,8 @@
 #include <atomic>
 #include <thread>
 
+#include "ThreadManager.hpp"
+
 using namespace std;
 
 namespace CRFModel
@@ -95,8 +97,6 @@ namespace CRFModel
             Log0(new double[log0Size]),
             Logs(new double[logsSize0 * logsSize1 * logsSize2])
             {
-                memset(Log0, 0, log0Size);
-                memset(Logs, 0, logsSize0 * logsSize1 * logsSize2);
             }
 
             ~PotentialTable()
@@ -146,10 +146,10 @@ namespace CRFModel
                     potentialTable->Log0[i] = product(*feature);
                 }
 
-                vector<thread*> threadPool;
+                ThreadManager threadManager;
                 for(int i = 1; i < seqLength; ++i)
                 {
-                    threadPool.push_back(new thread(
+                    threadManager.Run(new thread(
                         [&sequence, potentialTable, this](int i)
                         {
                             unique_ptr<VectorInt> feature;
@@ -174,27 +174,19 @@ namespace CRFModel
                         i
                     ));
                 }
-                for(auto thr : threadPool)
-                {
-                    thr->join();
-                }
-                for(auto thr : threadPool)
-                {
-                    delete thr;
-                }
-                threadPool.clear();
+                threadManager.Join();
 
                 return potentialTable;
             }
 
             double Loglikelihood(Seq &sequence)
-            {
+            {                    
                 size_t seqLength = sequence.Sequence->size();
                 const VectorInt seqStates = *(sequence.Labels);
 
                 unique_ptr<PotentialTable> potentialTable(LogPotentialTable(sequence));
                 unique_ptr<Matrix> messages(forward(*potentialTable, seqLength));
-                
+
                 double maxProb = *(max_element((*messages)[seqLength-1].begin(), (*messages)[seqLength-1].end()));
                 double tempMargin = 0.0;
                 for(int i = 0; i < mLabelStateSize; ++i)
@@ -215,6 +207,7 @@ namespace CRFModel
                     logLikelihood += potentialTable->Logs[index];
                 }
                 logLikelihood -= logNormalizedTerm;
+
                 return logLikelihood;
             }
 
@@ -294,14 +287,16 @@ namespace CRFModel
                     {
                         update(*sequences[j], rate);
                     }
-                    
+
                     cout << "Cal loglikehood.." << endl;
+
                     double likelihood = 0.0;
-                    vector<thread*> threadPool;
+                    
+                    ThreadManager threadManager;
                     mutex mtx;
                     for(int j = 0; j < dataSize; ++j)
                     {
-                        threadPool.push_back(new thread(
+                        threadManager.Run(new thread(
                             [&sequences, &mtx, &likelihood, this](int j)
                             {
                                 double likelood = this->Loglikelihood(*sequences[j]);
@@ -312,15 +307,12 @@ namespace CRFModel
                             j
                         ));
                     }
-                    for(auto thread : threadPool)
-                    {
-                        thread->join();
-                    }
-                    for(int i = 0; i < threadPool.size(); ++i)
-                    {
-                        delete threadPool[i];
-                    }
-                    threadPool.clear();
+                    threadManager.Join();
+
+                    //performance//////////////////////////////////////////
+                    clock_t calGredient = clock() - start;
+                    cout << "update: " << float(calGredient)/CLOCKS_PER_SEC << endl;
+                    //performance//////////////////////////////////////////
 
                     cout << "Loglihood: " << likelihood / dataSize << endl;
                     if (likelihood <= oldLikelihood)
@@ -332,11 +324,6 @@ namespace CRFModel
                     {
                         earlyStopCount = 3;
                     }
-
-                    //performance//////////////////////////////////////////
-                    clock_t calGredient = clock() - start;
-                    cout << "update: " << float(calGredient)/CLOCKS_PER_SEC << endl;
-                    //performance//////////////////////////////////////////
 
                     cout << "===========================================" << endl;
                     oldLikelihood = likelihood;                    
@@ -380,26 +367,27 @@ namespace CRFModel
             {
                 double tempMeg  = 0.0;
                 double temp     = 0.0;
-                int index    = 0;
+                int index       = 0;
+                int i,j,k;
                 double maxProb  = 0.0;
                 Vector Fs(mLabelStateSize, 0.0);
 
                 Matrix *message = new Matrix(seqLength, Vector(mLabelStateSize, 0.0));
                 copy(potentialTable.Log0, potentialTable.Log0 + mLabelStateSize, (*message)[0].begin());
-                for(int i = 1; i < seqLength; ++i)
+                for(i = 1; i < seqLength; ++i)
                 {
-                    for(int j = 0; j < mLabelStateSize; ++j)
+                    for(j = 0; j < mLabelStateSize; ++j)
                     {
                         tempMeg = 0.0;
                         index   = (i-1) * potentialTable.LogsSize1 * potentialTable.LogsSize2 + j;
 
-                        for(int k = 0; k < mLabelStateSize; ++k)
+                        for(k = 0; k < mLabelStateSize; ++k)
                         {
                             Fs[k] = potentialTable.Logs[index + k*potentialTable.LogsSize2] + (*message)[i-1][k];
                         }
                         maxProb = *(max_element(Fs.begin(), Fs.end()));
 
-                        for(int k = 0; k < mLabelStateSize; ++k)
+                        for(k = 0; k < mLabelStateSize; ++k)
                         {
                             tempMeg += exp(Fs[k] - maxProb);
                         }
@@ -413,25 +401,26 @@ namespace CRFModel
                 double tempMeg  = 0.0;
                 double temp     = 0.0;
                 int index    = 0;
+                int i,j,k;
                 double maxProb  = 0.0;
                 Vector Fs(mLabelStateSize, 0.0);
 
                 Matrix *message = new Matrix(seqLength, Vector(mLabelStateSize, 0.0));
-                for(int i = seqLength-2; i >= 0; --i)
+                for(i = seqLength-2; i >= 0; --i)
                 {
-                    for(int j = 0; j < mLabelStateSize; ++j)
+                    for(j = 0; j < mLabelStateSize; ++j)
                     {
                         tempMeg = 0.0;
                         index   = i * potentialTable.LogsSize1 * potentialTable.LogsSize2 + 
                                   j * potentialTable.LogsSize2;
 
-                        for(int k = 0; k < mLabelStateSize; ++k)
+                        for(k = 0; k < mLabelStateSize; ++k)
                         {
                             Fs[k] = potentialTable.Logs[index + k] + (*message)[i+1][k];
                         }
                         maxProb = *(max_element(Fs.begin(), Fs.end()));
 
-                        for(int k = 0; k < mLabelStateSize; ++k)
+                        for(k = 0; k < mLabelStateSize; ++k)
                         {
                             tempMeg += exp(Fs[k] - maxProb);
                         }
@@ -453,9 +442,10 @@ namespace CRFModel
             {
                 unique_ptr<VectorInt> feature5;
                 int index = 0;
-                for(int j = 0; j < mLabelStateSize; ++j)
+                int j, k;
+                for(j = 0; j < mLabelStateSize; ++j)
                 {
-                    for(int k = 0; k < mLabelStateSize; ++k)
+                    for(k = 0; k < mLabelStateSize; ++k)
                     {
                         index = (i-1) * potentialTable->LogsSize1 * potentialTable->LogsSize2 +
                                 j     * potentialTable->LogsSize2 + k;
@@ -477,15 +467,27 @@ namespace CRFModel
                 size_t seqLength = sequence.Sequence->size();
                 const vector<int> * const labels = sequence.Labels;
                 int index = 0;
+                int i,j,k;
                
                 unique_ptr<PotentialTable> potentialTable(LogPotentialTable(sequence));
-                unique_ptr<Matrix> forwardMessages(forward(*potentialTable, seqLength));
-                unique_ptr<Matrix> backwardMessages(backward(*potentialTable, seqLength));
+                unique_ptr<Matrix> forwardMessages;
+                thread forwThr([&potentialTable, seqLength, &forwardMessages, this]()
+                    {
+                        forwardMessages.reset(this->forward(*potentialTable, seqLength));
+                    }
+                );
+                unique_ptr<Matrix> backwardMessages;
+                thread backThr([&potentialTable, seqLength, &backwardMessages, this]()
+                    {
+                        backwardMessages.reset(this->backward(*potentialTable, seqLength));
+                    }
+                );
                 unique_ptr<VectorInt> feature;
-
+                
+                forwThr.join();
                 double maxProb = *(max_element((*forwardMessages)[seqLength-1].begin(), (*forwardMessages)[seqLength-1].end()));
                 double tempMargin = 0.0;
-                for(int i = 0; i < mLabelStateSize; ++i)
+                for(i = 0; i < mLabelStateSize; ++i)
                 {
                     tempMargin += exp((*forwardMessages)[seqLength-1][i] - maxProb);
                 }
@@ -493,10 +495,13 @@ namespace CRFModel
 
                 for_each(mWnodeGradient, mWnodeGradient + mNodeFeatureSize, [](double &i){i=0.0;});
                 for_each(mWedgeGradient, mWedgeGradient + mEdgeFeatureSize, [](double &i){i=0.0;});
-
-                for(int i = 0; i < seqLength; ++i)
+                // memset(mWnodeGradient, 0.0, mNodeFeatureSize);
+                // memset(mWedgeGradient, 0.0, mEdgeFeatureSize);
+                
+                backThr.join();
+                for(i = 0; i < seqLength; ++i)
                 {
-                    for(int j = 0; j < mLabelStateSize; ++j)
+                    for(j = 0; j < mLabelStateSize; ++j)
                     {
                         feature.reset(sequence.GetFeature(i, j));
 
@@ -507,10 +512,10 @@ namespace CRFModel
                     }
                 }
     
-                vector<thread*> threadPool;
-                for(int i = 1; i < seqLength; ++i)
+                ThreadManager threadManager;
+                for(i = 1; i < seqLength; ++i)
                 {
-                    threadPool.push_back(new thread(
+                    threadManager.Run(new thread(
                         [this, &potentialTable, &sequence, &forwardMessages, &backwardMessages, logNormalizedTerm](int i)
                         {
                             this->calEdgeGradient(
@@ -525,26 +530,18 @@ namespace CRFModel
                         i
                     ));
                 };
-                for(auto th : threadPool)
-                {
-                    th->join();
-                }
-                for(int i = 0; i < threadPool.size(); ++i)
-                {
-                    delete threadPool[i];
-                }
-                threadPool.clear();
+                threadManager.Join();
 
-                for(int i = 0; i < mNodeFeatureSize; ++i)
+                for(i = 0; i < mNodeFeatureSize; ++i)
                 {
                     mWnode[i] -= mWnodeGradient[i] * rate;
                 }
-                for(int i = 0; i < mEdgeFeatureSize; ++i)
+                for(i = 0; i < mEdgeFeatureSize; ++i)
                 {
                     mWedge[i] -= mWedgeGradient[i] * rate;
                 }
 
-                for(int i = 0; i < seqLength; ++i)
+                for(i = 0; i < seqLength; ++i)
                 {
                     feature.reset(sequence.GetFeature(i, (*labels)[i]));
                     for(auto &elem : *feature)
@@ -552,7 +549,7 @@ namespace CRFModel
                         mWnode[elem] += rate;
                     }
                 }
-                for(int i = 1; i < seqLength; ++i)
+                for(i = 1; i < seqLength; ++i)
                 {
                     feature.reset(sequence.GetFeature(i, (*labels)[i-1], (*labels)[i]));
                     for(auto &elem : *feature)

@@ -95,10 +95,10 @@ int main()
     size_t nodeFeatureSize = Seq::LabelTable.size() * Seq::WordsTable.size();
     size_t edgeDeatureSize = Seq::LabelTable.size() * Seq::LabelTable.size() * Seq::WordsTable.size();
 
-
+    cout << nodeFeatureSize << " " << edgeDeatureSize << endl;
     CRFBin crf(nodeFeatureSize, edgeDeatureSize, Seq::LabelTable.size());
     cout << "training..." << endl;
-    crf.SGA(*train, 5, 1);
+    crf.SGA(*train, 100, 1);
     cout << "testing..." << endl;
     for(Seq *seq : *test)
     {

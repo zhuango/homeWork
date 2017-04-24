@@ -136,9 +136,6 @@ namespace CRFModel
             }
             PotentialTable *LogPotentialTable(Seq &sequence)
             {
-                int    index = 0;
-                double edge  = 0;
-                double node  = 0;
                 size_t seqLength = sequence.Sequence->size();
                 unique_ptr<VectorInt> feature;
                 PotentialTable *potentialTable = new PotentialTable(mLabelStateSize, seqLength-1, mLabelStateSize, mLabelStateSize);
@@ -148,23 +145,45 @@ namespace CRFModel
                     feature.reset(sequence.GetFeature(0, i));
                     potentialTable->Log0[i] = product(*feature);
                 }
+
+                vector<thread*> threadPool;
                 for(int i = 1; i < seqLength; ++i)
                 {
-                    for(int j = 0; j < mLabelStateSize; ++j)
-                    {
-                        for(int k = 0; k < mLabelStateSize; ++k)
+                    threadPool.push_back(new thread(
+                        [&sequence, potentialTable, this](int i)
                         {
-                            feature.reset(sequence.GetFeature(i, k));
-                            node  = product(*feature);
-                            feature.reset(sequence.GetFeature(i, j, k));
-                            edge  = product(*feature, false);
-                            
-                            index = (i-1) * potentialTable->LogsSize1 * potentialTable->LogsSize2 +
-                                    j     * potentialTable->LogsSize2 + k;
-                            potentialTable->Logs[index] = node + edge;
-                        }
-                    }
+                            unique_ptr<VectorInt> feature;
+                            int index = 0;
+                            double node = 0.0;
+                            double edge = 0.0;
+                            for(int j = 0; j < this->mLabelStateSize; ++j)
+                            {
+                                for(int k = 0; k < this->mLabelStateSize; ++k)
+                                {
+                                    feature.reset(sequence.GetFeature(i, k));
+                                    node  = product(*feature);
+                                    feature.reset(sequence.GetFeature(i, j, k));
+                                    edge  = product(*feature, false);
+                                    
+                                    index = (i-1) * potentialTable->LogsSize1 * potentialTable->LogsSize2 +
+                                            j     * potentialTable->LogsSize2 + k;
+                                    potentialTable->Logs[index] = node + edge;
+                                }
+                            }
+                        },
+                        i
+                    ));
                 }
+                for(auto thr : threadPool)
+                {
+                    thr->join();
+                }
+                for(auto thr : threadPool)
+                {
+                    delete thr;
+                }
+                threadPool.clear();
+
                 return potentialTable;
             }
 
@@ -268,10 +287,9 @@ namespace CRFModel
                     cout << "rate = " << rate << endl;
                     cout << "Iteration: " << i << endl;
 
-                    //performance/////////
+                    //performance//////////////////////////////////////////
                     clock_t start = clock();
-                    //performance/////////
-
+                    //performance//////////////////////////////////////////
                     for(int j = 0; j < dataSize; ++j)
                     {
                         update(*sequences[j], rate);
@@ -315,11 +333,11 @@ namespace CRFModel
                         earlyStopCount = 3;
                     }
 
-                    //performance/////////
+                    //performance//////////////////////////////////////////
                     clock_t calGredient = clock() - start;
                     cout << "update: " << float(calGredient)/CLOCKS_PER_SEC << endl;
-                    calGredient = clock();
-                    //performance/////////
+                    //performance//////////////////////////////////////////
+
                     cout << "===========================================" << endl;
                     oldLikelihood = likelihood;                    
                     if (abs(likelihood) < 0.01)
@@ -459,7 +477,7 @@ namespace CRFModel
                 size_t seqLength = sequence.Sequence->size();
                 const vector<int> * const labels = sequence.Labels;
                 int index = 0;
-
+               
                 unique_ptr<PotentialTable> potentialTable(LogPotentialTable(sequence));
                 unique_ptr<Matrix> forwardMessages(forward(*potentialTable, seqLength));
                 unique_ptr<Matrix> backwardMessages(backward(*potentialTable, seqLength));
@@ -488,7 +506,7 @@ namespace CRFModel
                         }
                     }
                 }
-
+    
                 vector<thread*> threadPool;
                 for(int i = 1; i < seqLength; ++i)
                 {

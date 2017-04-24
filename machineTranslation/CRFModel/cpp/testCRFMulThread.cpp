@@ -1,4 +1,4 @@
-#include "crfMulThread.cpp"
+#include "crfMulThread.hpp"
 #include <iostream>
 #include <string>
 #include <map>

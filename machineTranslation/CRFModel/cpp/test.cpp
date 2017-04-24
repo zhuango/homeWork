@@ -105,9 +105,13 @@ int main(void)
         }
     }
     cout <<"atomic flag size: " << sizeof(std::atomic_flag) << endl;
-    while(true)
-    {
 
-    }
+    size_t blockSize = 6458496;
+    double *dataBlock = new double[blockSize];
+    //dataBlock[1000] = 1000;
+    memset(dataBlock, -1.3, blockSize);
+    memset(dataBlock, 0.0, blockSize);
+    for_each(dataBlock, dataBlock + 6458496, [](double i){cout << i << " ";});
+    cout << endl;
 
 }

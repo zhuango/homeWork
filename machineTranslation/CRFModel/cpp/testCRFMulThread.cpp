@@ -59,7 +59,7 @@ vector<Seq*> *load(string filename)
         }
         data->push_back(new Seq(wordSeq, labels));
         
-        if((++index) == 30)
+        if((++index) == 100)
         {
             Seq::MaxLength = maxLen;
             return data;
@@ -98,7 +98,7 @@ int main()
     cout << nodeFeatureSize << " " << edgeDeatureSize << endl;
     CRFBin crf(nodeFeatureSize, edgeDeatureSize, Seq::LabelTable.size());
     cout << "training..." << endl;
-    crf.SGA(*train, 100, 1);
+    crf.SGA(*train, 0.1, 100, 1);
     cout << "testing..." << endl;
     for(Seq *seq : *test)
     {

@@ -268,14 +268,14 @@ namespace CRFModel
 
                 return labels;
             }
-            void SGA(vector<Seq*> &sequences, size_t iterations=20, double a0=1)
+            void SGA(vector<Seq*> &sequences, double threshold, size_t iterations=20, double a=1)
             {
                 double oldLikelihood = -10000000000000000;
                 size_t earlyStopCount = 3;
                 size_t dataSize = sequences.size();
                 for(int i = 0; i < iterations; ++i)
                 {
-                    double rate = a0 / (sqrt(i) + 1);
+                    double rate = a / (sqrt(i) + 1);
                     cout << "rate = " << rate << endl;
                     cout << "Iteration: " << i << endl;
 
@@ -326,7 +326,7 @@ namespace CRFModel
 
                     cout << "===========================================" << endl;
                     oldLikelihood = likelihood;                    
-                    if (abs(likelihood) < 0.01)
+                    if (abs(likelihood) < threshold)
                     {
                         return ;
                     }

@@ -12,6 +12,7 @@
 #include <mutex>
 #include <atomic>
 #include <thread>
+#include <fstream>
 
 #include "ThreadManager.hpp"
 
@@ -29,7 +30,7 @@ namespace CRFModel
     {
         public:
             static map<string, int> LabelTable;
-            static map<string, int> WordsTable;
+            map<string, int> WordsTable;
             static size_t MaxLength;
 
             const vector<string> * const Sequence;
@@ -55,26 +56,42 @@ namespace CRFModel
             VectorInt* GetFeature(int seqNum, int y0State, int y1State = InvalidState)
             {
                 const string &word = (*Sequence)[seqNum];
+
                 VectorInt *weightIndex = new VectorInt();
                 int index = 0;
                 int labelsize = LabelTable.size();
                 
                 if (InvalidState == y1State)
                 {
+                    // %x[0,0]
                     index = WordsTable[word] * labelsize + y0State;
+                    // %x[-1,0]
+                    // if (seqNum > 0)
+                    // {
+                    //     weightIndex->push_back(WordsTable[(*Sequence)[seqNum-1]] * labelsize + y0State);
+                    // }
+                    // %x[-2,0]
+                    // if (seqNum > 1)
+                    // {
+                    //     weightIndex->push_back(WordsTable[(*Sequence)[seqNum-2]] * labelsize + y0State);
+                    // }
+                    weightIndex->push_back(index);
                 }
                 else
                 {
                     index = WordsTable[word] * pow(labelsize, 2) + y0State * labelsize + y1State;
+                    weightIndex->push_back(index);
                 }
-                weightIndex->push_back(index);
                 
                 return weightIndex;
+            }
+            int size()
+            {
+                return this->Sequence->size();
             }
     };
     size_t Seq::MaxLength = 0;
     map<string, int> Seq::LabelTable;
-    map<string, int> Seq::WordsTable;
 
 
     class PotentialTable
@@ -268,7 +285,7 @@ namespace CRFModel
 
                 return labels;
             }
-            void SGA(vector<Seq*> &sequences, double threshold, size_t iterations=20, double a=1)
+            void SGA(vector<Seq*> &sequences, double threshold, size_t iterations=20, double a=1, bool validate=false, vector<Seq*> *testData=nullptr)
             {
                 double oldLikelihood = -10000000000000000;
                 size_t earlyStopCount = 3;
@@ -276,7 +293,7 @@ namespace CRFModel
                 for(int i = 0; i < iterations; ++i)
                 {
                     double rate = a / (sqrt(i) + 1);
-                    cout << "rate = " << rate << endl;
+                    cout << "learning rate = " << rate << endl;
                     cout << "Iteration: " << i << endl;
 
                     //performance//////////////////////////////////////////
@@ -287,7 +304,7 @@ namespace CRFModel
                         update(*sequences[j], rate);
                     }
 
-                    cout << "Cal loglikehood.." << endl;
+                    cout << "Cal loglikelihood.." << endl;
 
                     double likelihood = 0.0;
                     
@@ -310,10 +327,10 @@ namespace CRFModel
 
                     //performance//////////////////////////////////////////
                     clock_t calGredient = clock() - start;
-                    cout << "update: " << float(calGredient)/CLOCKS_PER_SEC << endl;
+                    cout << "update: " << float(calGredient)/CLOCKS_PER_SEC << "s" << endl;
                     //performance//////////////////////////////////////////
 
-                    cout << "Loglihood: " << likelihood / dataSize << endl;
+                    cout << "Loglikelihood: " << likelihood / dataSize << endl;
                     if (likelihood <= oldLikelihood)
                     {
                         earlyStopCount -= 1;
@@ -330,7 +347,39 @@ namespace CRFModel
                     {
                         return ;
                     }
+                    if (validate)
+                    {
+                        test(*testData, i);
+                    }
                 }
+            }
+            void test(vector<Seq*> &test, int i)
+            {
+                cout << "testing..." << endl;
+                double correct = 0.0;
+                double count = 0.0;
+                string resultFile = "./result" + i;
+                ofstream resultStream(resultFile);
+                for(Seq *seq : test)
+                {
+                    std::unique_ptr<VectorInt> result(Sample(*seq));
+                    // for_each(result->begin(), result->end(), [](int i){cout << i << " ";});
+                    // cout << endl;
+                    // for_each(seq->Labels->begin(), seq->Labels->end(), [](int i){cout << i << " ";});
+                    // cout << endl;
+                    for (int i = 0; i < seq->size(); ++i)
+                    {
+                        resultStream << (*result)[i] << "\t" << (*(seq->Labels))[i] << endl;
+                        if((*result)[i] == (*(seq->Labels))[i])
+                        {
+                            correct += 1.0;
+                        }
+                        count += 1.0;
+                    }
+                }
+                resultStream.close();
+
+                cout << "accuracy: " << (correct / count) << endl;
             }
         private:
             double *mWnode;
@@ -451,6 +500,7 @@ namespace CRFModel
                         feature5.reset(sequence.GetFeature(i, j ,k));
                         for(auto &elem : *feature5)
                         {
+                            // memory care.
                             while(mEdgeFlag[elem].test_and_set())
                             {
                                 this_thread::yield();

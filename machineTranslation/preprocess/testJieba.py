@@ -17,3 +17,8 @@ import jieba.posseg as pseg
 words = pseg.cut("我爱北京天安门")
 for word, flag in words:
     print("".join((word, flag)))
+
+seg_list = jieba.cut("These drugs include the thiazides and other [E], corticosteroids, phenothiazines, thyroid products, estrogens, oral contraceptives, [E], nicotinic acid, sympathomimetics, calcium channel-blocking drugs, and isoniazid.", cut_all=False)
+
+print("+++++++" + list(seg_list)[0] + "++++++++++++")
+print("Default Mode: " + " ".join(seg_list))  # 精确模式

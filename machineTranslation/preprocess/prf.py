@@ -1,7 +1,13 @@
 #！/usr/bin/python3
 posDict = {}
-prf = [0.0, 0.0, 0.0]
-with open("/home/laboratory/github/homeWork/machineTranslation/CRFModel/cpp/result1", 'r') as result:
+prf = [0.0, 0.0]
+labelmapping = {}
+with open("/home/laboratory/github/homeWork/machineTranslation/data/pos.txt",'r') as labelMappingS:
+    for line in labelMappingS:
+        record = line.strip().split(" ")
+        labelmapping[record[0]] = record[1]
+
+with open("/home/laboratory/github/homeWork/machineTranslation/CRFModel/cpp/result1/result8", 'r') as result:
     for line in result:
         result_gold = line.strip().split("\t")
         result = result_gold[0]
@@ -14,10 +20,11 @@ with open("/home/laboratory/github/homeWork/machineTranslation/CRFModel/cpp/resu
         posDict[result][1] += 1
         if result == gold:
             posDict[gold][2] += 1
-            prf[2] += 1
+            prf[1] += 1
         prf[0] += 1
-        prf[1] += 1
-for key in posDict:
+sortedKey = sorted(posDict, key=lambda k:int(k))
+print(sortedKey)
+for key in sortedKey:
     pos = posDict[key]
     if pos[0] == 0:
         continue
@@ -30,8 +37,9 @@ for key in posDict:
         f = 2*p*r / (p + r)
     except:
         f = 0.0
-    print(key)
+    print(labelmapping[key])
     print("count: " + str(pos[0]))
-    print("p: " + str(p))
-    print("r: " + str(r))
-    print("f: " + str(f))
+    print("p: {0:.4f}".format(p))
+    print("r: {0:.4f}".format(r))
+    print("f: {0:.4f}".format(f))
+print("total: " + str(prf[1] / prf[0]))

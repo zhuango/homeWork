@@ -27,7 +27,7 @@ vector<string> split(string line, char delim)
 vector<Seq*> *load(string filename)
 {
     vector<Seq*> *data = new vector<Seq*>();
-    size_t maxLen = 0;
+    size_t maxLen = Seq::MaxLength;
     string line;
     ifstream file(filename.c_str());
     size_t index = 0;
@@ -58,7 +58,7 @@ vector<Seq*> *load(string filename)
             maxLen = currentSeqLength;
         }
         data->push_back(new Seq(wordSeq, labels));
-        
+            
         // if((++index) == 100)
         // {
         //     Seq::MaxLength = maxLen;
@@ -71,7 +71,7 @@ vector<Seq*> *load(string filename)
 
 int main()
 {
-    string fold = "0";
+    string fold = "1";
     string trainCorpus = "/home/laboratory/github/homeWork/machineTranslation/data/train.txt" + fold;
     string testCorpus  = "/home/laboratory/github/homeWork/machineTranslation/data/test.txt" + fold;
     cout << "cache label..." << endl;
@@ -86,6 +86,7 @@ int main()
         ss >> index;
         Seq::LabelTable.insert(pair<string, int>(tokens[1], index));
     }
+    Seq::LabelSizeSquare = pow(Seq::LabelTable.size(), 2);
     
     cout << "load train data..." << endl;
     vector<Seq*> *train = load(trainCorpus);
@@ -93,9 +94,31 @@ int main()
     cout << "load test data ..." << endl;
     vector<Seq*> *test = load(testCorpus);
 
-    size_t nodeFeatureSize = Seq::LabelTable.size() * Seq::MaxLength;
-    size_t edgeDeatureSize = Seq::LabelTable.size() * Seq::LabelTable.size() * Seq::MaxLength;
-
+    size_t nodeFeatureSize = Seq::LabelTable.size() * Seq::WordsTable.size() * 7;
+    size_t edgeDeatureSize = 0;//Seq::LabelTable.size() * Seq::LabelTable.size() * Seq::WordsTable.size();
+    Seq::FeatureOffset = Seq::LabelTable.size() * Seq::WordsTable.size();
+    cout << "generating feature table..." << endl;
+    int countd = 0;
+    for(auto &elem : *train)
+    {
+        countd += 1;
+        if (countd % 500 == 0)
+        {
+            cout << countd << endl;
+        }
+        elem->GeneFeaturetable();
+    }
+    cout << "generating feature table..." << endl;
+    countd = 0;
+    for(auto &elem : *test)
+    {
+        countd += 1;
+        if (countd % 500 == 0)
+        {
+            cout << countd << endl;
+        }
+        elem->GeneFeaturetable();
+    }
     cout << nodeFeatureSize << " " << edgeDeatureSize << endl;
     CRFBin crf(nodeFeatureSize, edgeDeatureSize, Seq::LabelTable.size());
     cout << "training..." << endl;

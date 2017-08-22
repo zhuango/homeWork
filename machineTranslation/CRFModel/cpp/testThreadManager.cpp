@@ -1,7 +1,7 @@
 #include <iostream>
 #include <thread>
 #include <string>
-#include "ThreadManager.cpp"
+#include "ThreadManager.hpp"
 using namespace CRFModel;
 using namespace std;
 void threadFunc(int a, double b, string s)

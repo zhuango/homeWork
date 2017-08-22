@@ -72,6 +72,7 @@ namespace CRFModel
                         // %x[0,0]
                         index = seqNum * labelsize + y0State;
                         // %x[-1,0]
+                        // %x[-1,0]/%x[0,0]
                         if (seqNum > 0)
                         {
                             weightIndex.push_back(1*FeatureOffset+WordsTable[(*Sequence)[seqNum-1]] * labelsize + y0State);
@@ -84,6 +85,7 @@ namespace CRFModel
                             weightIndex.push_back(2*FeatureOffset+WordsTable[(*Sequence)[seqNum-2]] * labelsize + y0State);
                         }
                         // %x[1,0]
+                        // %x[0,0]/%x[1,0]
                         if (seqNum < size()-1)
                         {
                             weightIndex.push_back(3*FeatureOffset+WordsTable[(*Sequence)[seqNum+1]] * labelsize + y0State);
@@ -391,6 +393,9 @@ namespace CRFModel
                 ss << i;
                 string resultFile = "./result/result" + ss.str();
                 ofstream resultStream(resultFile);
+                //performance//////////////////////////////////////////
+                clock_t start = clock();
+                //performance//////////////////////////////////////////
                 for(Seq *seq : test)
                 {
                     std::unique_ptr<VectorInt> result(Sample(*seq));
@@ -408,6 +413,10 @@ namespace CRFModel
                         count += 1.0;
                     }
                 }
+                //performance//////////////////////////////////////////
+                clock_t calGredient = clock() - start;
+                cout << "testing : " << float(calGredient)/CLOCKS_PER_SEC << "s" << endl;
+                //performance//////////////////////////////////////////
                 resultStream.close();
 
                 cout << "accuracy: " << (correct / count) << endl;

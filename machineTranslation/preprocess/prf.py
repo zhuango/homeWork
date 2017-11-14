@@ -6,16 +6,17 @@ with open("/home/laboratory/github/homeWork/machineTranslation/data/pos.txt",'r'
     for line in labelMappingS:
         record = line.strip().split(" ")
         labelmapping[record[0]] = record[1]
+        posDict[record[0]] = [0.0, 0.0, 0.0]
 
-with open("/home/laboratory/github/homeWork/machineTranslation/CRFModel/cpp/result1/result8", 'r') as result:
+with open("/home/laboratory/github/homeWork/machineTranslation/CRFModel/cpp/result5/result9", 'r') as result:
     for line in result:
         result_gold = line.strip().split("\t")
         result = result_gold[0]
         gold   = result_gold[1]
-        if gold not in posDict:
-            posDict[gold] = [0.0, 0.0, 0.0]
-        if result not in posDict:
-            posDict[result] = [0.0, 0.0, 0.0]
+        # if gold not in posDict:
+        #     posDict[gold] = [0.0, 0.0, 0.0]
+        # if result not in posDict:
+        #     posDict[result] = [0.0, 0.0, 0.0]
         posDict[gold][0] += 1
         posDict[result][1] += 1
         if result == gold:
@@ -27,6 +28,11 @@ print(sortedKey)
 for key in sortedKey:
     pos = posDict[key]
     if pos[0] == 0:
+        print(labelmapping[key])
+        print("count: " + str(pos[0]))
+        print("p: {0:.4f}".format(0))
+        print("r: {0:.4f}".format(0))
+        print("f: {0:.4f}".format(0))
         continue
     r = pos[2] / pos[0]
     try:

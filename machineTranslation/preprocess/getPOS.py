@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-filename = "../data/2000-09-2003.txt.utf8"
+filename = "../data/2000-09-2003.txt.utf8.clean"
 labelFilename = "../data/pos.txt"
 labels = set()
 
@@ -15,5 +15,7 @@ with open(filename, 'r') as f:
 i = 0
 with open(labelFilename, 'w') as posStream:
     for label in labels:
+        if "]" in label:
+            continue
         posStream.write(str(i) + " " + str(label) + "\n")
         i+=1

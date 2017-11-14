@@ -71,7 +71,7 @@ vector<Seq*> *load(string filename)
 
 int main()
 {
-    string fold = "1";
+    string fold = "4";
     string trainCorpus = "/home/laboratory/github/homeWork/machineTranslation/data/train.txt" + fold;
     string testCorpus  = "/home/laboratory/github/homeWork/machineTranslation/data/test.txt" + fold;
     cout << "cache label..." << endl;

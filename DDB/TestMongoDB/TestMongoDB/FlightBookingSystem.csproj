@@ -33,19 +33,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MongoDB.Bson">
-      <HintPath>..\..\CSharpDriver-2.5.0\net45\MongoDB.Bson.dll</HintPath>
+      <HintPath>..\..\..\..\CSharpDriver-2.5.0\net45\MongoDB.Bson.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Driver">
-      <HintPath>..\..\CSharpDriver-2.5.0\net45\MongoDB.Driver.dll</HintPath>
+      <HintPath>..\..\..\..\CSharpDriver-2.5.0\net45\MongoDB.Driver.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Driver.Core">
-      <HintPath>..\..\CSharpDriver-2.5.0\net45\MongoDB.Driver.Core.dll</HintPath>
+      <HintPath>..\..\..\..\CSharpDriver-2.5.0\net45\MongoDB.Driver.Core.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Driver.GridFS">
-      <HintPath>..\..\CSharpDriver-2.5.0\net45\MongoDB.Driver.GridFS.dll</HintPath>
+      <HintPath>..\..\..\..\CSharpDriver-2.5.0\net45\MongoDB.Driver.GridFS.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Driver.Legacy">
-      <HintPath>..\..\CSharpDriver-2.5.0\net45\MongoDB.Driver.Legacy.dll</HintPath>
+      <HintPath>..\..\..\..\CSharpDriver-2.5.0\net45\MongoDB.Driver.Legacy.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

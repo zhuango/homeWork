@@ -20,3 +20,4 @@
 !*.conf
 !*.mongo
 !*.sh
+!*.dll

@@ -17,3 +17,6 @@
 !*.csproj
 !*.resx
 !*.settings
+!*.conf
+!*.mongo
+!*.sh

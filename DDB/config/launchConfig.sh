@@ -1,0 +1,1 @@
+sudo mongod -f ./config.conf

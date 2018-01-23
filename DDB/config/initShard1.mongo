@@ -1,0 +1,17 @@
+mongo --port 27001
+#使用admin数据库
+use admin
+#定义副本集配置，第三个节点的 "arbiterOnly":true 代表其为仲裁节点。
+
+config = {
+    _id : "shard1",
+    members : [
+        {_id : 0, host : "192.168.1.110:27001" },
+        {_id : 1, host : "192.168.1.107:27001" , arbiterOnly: true},
+        {_id : 2, host : "192.168.1.108:27001"}
+    ]
+}
+
+
+#初始化副本集配置
+rs.initiate(config);

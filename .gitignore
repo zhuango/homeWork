@@ -11,3 +11,9 @@
 !*.sql
 !*.hpp
 !LICENSE
+!*.cs
+!*.config
+!*.sln
+!*.csproj
+!*.resx
+!*.settings

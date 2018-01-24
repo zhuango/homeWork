@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace FlightBookingSystem
 {
-	public class TakingOffManager
-	{
+    public class TakingOffManager
+    {
         private DatabaseManager mDBManager;
 
         public TakingOffManager(DatabaseManager dm)
@@ -15,17 +15,17 @@ namespace FlightBookingSystem
             this.mDBManager = dm;
         }
         public List<Airport> Airports
-		{
-			get
-			{
-				return this.query();
-			}
-		}
+        {
+            get
+            {
+                return this.query();
+            }
+        }
 
-		private List<Airport> query()
-		{
-			return null;
-		}
+        private List<Airport> query()
+        {
+            return null;
+        }
         public Airport QueryAirport(Int32 airportID)
         {
             Airport airport = new Airport(this.mDBManager.QueryAirport(airportID));
@@ -41,20 +41,20 @@ namespace FlightBookingSystem
             }
             return flights;
         }
-		public void ShowInfo()
-		{
-			foreach (Airport airport in Airports)
-			{
-				airport.ShowFlightInfomation();
-			}
-		}
+        public void ShowInfo()
+        {
+            foreach (Airport airport in Airports)
+            {
+                airport.ShowFlightInfomation();
+            }
+        }
 
-		public void TakingOff()
-		{
-			foreach (Airport airport in Airports)
-			{
-				airport.TakeingOff();
-			}
-		}
-	}
+        public void TakingOff()
+        {
+            foreach (Airport airport in Airports)
+            {
+                airport.TakeingOff();
+            }
+        }
+    }
 }

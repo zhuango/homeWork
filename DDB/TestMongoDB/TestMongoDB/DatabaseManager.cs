@@ -8,28 +8,28 @@ using System.Threading.Tasks;
 
 namespace FlightBookingSystem
 {
-	public class DatabaseManager
-	{
-		private MongoClient mMongoClient;
-		private IMongoDatabase mFlightBooking;
-		private IMongoCollection<BsonDocument> mPassenger;
-		private IMongoCollection<BsonDocument> mAirport;
-		private IMongoCollection<BsonDocument> mFlight;
-		private FilterDefinitionBuilder<BsonDocument> filterBuilder = Builders<BsonDocument>.Filter;
+    public class DatabaseManager
+    {
+        private MongoClient mMongoClient;
+        private IMongoDatabase mFlightBooking;
+        private IMongoCollection<BsonDocument> mPassenger;
+        private IMongoCollection<BsonDocument> mAirport;
+        private IMongoCollection<BsonDocument> mFlight;
+        private FilterDefinitionBuilder<BsonDocument> filterBuilder = Builders<BsonDocument>.Filter;
         private UpdateDefinitionBuilder<BsonDocument> updateBuilder = Builders<BsonDocument>.Update;
 
         public IMongoCollection<BsonDocument> Flight { get { return this.mFlight; } }
-		public IMongoCollection<BsonDocument> Airport { get { return this.mAirport; } }
-		public IMongoCollection<BsonDocument> Passenger { get { return this.mPassenger; } }
+        public IMongoCollection<BsonDocument> Airport { get { return this.mAirport; } }
+        public IMongoCollection<BsonDocument> Passenger { get { return this.mPassenger; } }
 
-		public DatabaseManager(String serverIP, String port)
-		{
-			this.mMongoClient = new MongoClient(String.Format("mongodb://{0}:{1}", serverIP, port));
-			this.mFlightBooking = this.mMongoClient.GetDatabase("FlightBooking");
-			this.mPassenger = this.mFlightBooking.GetCollection<BsonDocument>("Passenger");
-			this.mAirport = this.mFlightBooking.GetCollection<BsonDocument>("Airport");
-			this.mFlight = this.mFlightBooking.GetCollection<BsonDocument>("Flight");
-		}
+        public DatabaseManager(String serverIP, String port)
+        {
+            this.mMongoClient = new MongoClient(String.Format("mongodb://{0}:{1}", serverIP, port));
+            this.mFlightBooking = this.mMongoClient.GetDatabase("FlightBooking");
+            this.mPassenger = this.mFlightBooking.GetCollection<BsonDocument>("Passenger");
+            this.mAirport = this.mFlightBooking.GetCollection<BsonDocument>("Airport");
+            this.mFlight = this.mFlightBooking.GetCollection<BsonDocument>("Flight");
+        }
 
         public void InsertAirport(BsonDocument airport)
         {
@@ -63,24 +63,24 @@ namespace FlightBookingSystem
             return result;
         }
         public List<BsonDocument> QueryFlight(String gAirportName, String aAirportName)
-		{
-			var filter = this.filterBuilder.Eq("Name", gAirportName);
-			var gAirport = this.mAirport.Find(filter).First();
+        {
+            var filter = this.filterBuilder.Eq("Name", gAirportName);
+            var gAirport = this.mAirport.Find(filter).First();
 
-			filter = this.filterBuilder.Eq("Name", aAirportName);
-			var aAirport = this.mAirport.Find(filter).First();
-			Console.WriteLine(aAirport["ID"]);
+            filter = this.filterBuilder.Eq("Name", aAirportName);
+            var aAirport = this.mAirport.Find(filter).First();
+            Console.WriteLine(aAirport["ID"]);
 
-			return QueryFlight(gAirport["ID"].ToInt32(), aAirport["ID"].ToInt32());
-		}
+            return QueryFlight(gAirport["ID"].ToInt32(), aAirport["ID"].ToInt32());
+        }
 
-		public List<BsonDocument> QueryFlight(int gAirportID, int aAorportID)
-		{
-			var filter = this.filterBuilder.Eq("GAirport", gAirportID) & this.filterBuilder.Eq("AAirport", aAorportID);
-			var results = this.mFlight.Find(filter).ToList();
+        public List<BsonDocument> QueryFlight(int gAirportID, int aAorportID)
+        {
+            var filter = this.filterBuilder.Eq("GAirport", gAirportID) & this.filterBuilder.Eq("AAirport", aAorportID);
+            var results = this.mFlight.Find(filter).ToList();
 
-			return results;
-		}
+            return results;
+        }
         public List<BsonDocument> QueryFlightFromAirport(Int32 airportID)
         {
             var filter = this.filterBuilder.Eq("GAirport", airportID);
@@ -106,14 +106,14 @@ namespace FlightBookingSystem
 
         //}
         public void InsertFlight(BsonDocument flight)
-		{
-			this.mFlight.InsertOne(flight);
-		}
+        {
+            this.mFlight.InsertOne(flight);
+        }
 
-		public void InsertPassenger(BsonDocument passenger)
-		{
-			this.mPassenger.InsertOne(passenger);
-		}
+        public void InsertPassenger(BsonDocument passenger)
+        {
+            this.mPassenger.InsertOne(passenger);
+        }
         public void DeletePassenger()
         {
             var filter = this.filterBuilder.Lt("ID", 100);

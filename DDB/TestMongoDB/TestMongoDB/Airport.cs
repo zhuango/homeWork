@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace FlightBookingSystem
 {
-	public class Airport
-	{
-		private int mID;
-		private String mName;
-		private String mSign;
-		private String mRight;
-		private String mArea;
-		private String mSafe;
+    public class Airport
+    {
+        private int mID;
+        private String mName;
+        private String mSign;
+        private String mRight;
+        private String mArea;
+        private String mSafe;
 
         public int ID { get { return this.mID; } }
         public String Name { get { return this.mName; } }
@@ -23,12 +23,12 @@ namespace FlightBookingSystem
         public String Area { get { return this.mArea; } }
         public String Safe { get { return this.mSafe; } }
 
-		public List<Flight> Flights
-		{
-			get
-			{
-				return null;
-			}
+        public List<Flight> Flights
+        {
+            get
+            {
+                return null;
+            }
         }
 
         // "ID" : 3, "Name" : "LuKou, NangJing", "Sign" : "LN", "Right" : "NJ", "Area" : 3, "Safe" : "Be safe"
@@ -42,17 +42,17 @@ namespace FlightBookingSystem
             this.mSafe = docu["Safe"].ToString();
         }
 
-		public void ShowFlightInfomation()
-		{
-			foreach (Flight flight in Flights)
-			{
-				// print information;
-			}
-		}
+        public void ShowFlightInfomation()
+        {
+            foreach (Flight flight in Flights)
+            {
+                // print information;
+            }
+        }
 
-		public void TakeingOff()
-		{
-			// print infomation;
-		}
-	}
+        public void TakeingOff()
+        {
+            // print infomation;
+        }
+    }
 }

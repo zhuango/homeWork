@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace FlightBookingSystem
 {
-	class Program
-	{
-		static void Main(string[] args)
-		{
+    class Program
+    {
+        static void Main(string[] args)
+        {
             DatabaseManager dm = new DatabaseManager("192.168.1.110", "20000");
             Passenger passenger = new Passenger(dm.QueryPassenger("zhuanglui", 7));
             //dm.DeleteAirports();
@@ -42,19 +42,19 @@ namespace FlightBookingSystem
             //Console.WriteLine(generatedFromStr.ToString());
         }
         static void InsertPassenger(DatabaseManager dm)
-		{
-			var document = new BsonDocument
-			{
-				{"ID", 1 },
-				{"Name", "Ksa" },
-				{"Tnumber", "13423235432" },
-				{"Snumber", "E012" },
-				{"Tkind", "12"},
-				{"Pnumber", "12" },
-				{"FlightNumber", 4 }
-			};
+        {
+            var document = new BsonDocument
+            {
+                {"ID", 1 },
+                {"Name", "Ksa" },
+                {"Tnumber", "13423235432" },
+                {"Snumber", "E012" },
+                {"Tkind", "12"},
+                {"Pnumber", "12" },
+                {"FlightNumber", 4 }
+            };
             dm.InsertPassenger(document);
-		}
+        }
         static void InsertFlight(DatabaseManager dm)
         {
             List<String> airports = new List<string> { "", "ZhouShuiZi, Dalian", "ShuangLiu, ChenDu", "LuKou, NangJing" };
@@ -117,10 +117,10 @@ namespace FlightBookingSystem
                 };
                 dm.InsertFlight(document);
             }
-			
-		}
-		static void InsertAirport(DatabaseManager dm)
-		{
+            
+        }
+        static void InsertAirport(DatabaseManager dm)
+        {
             var document0 = new BsonDocument
             {
                 { "ID", 1 },
@@ -150,37 +150,37 @@ namespace FlightBookingSystem
             };
             //var document = new BsonDocument
             //{
-            //	{ "ID", 4 },
-            //	{ "Name", "Inter, Nanjing" },
-            //	{ "Sign", "IN" },
-            //	{ "Right", "NJ" },
-            //	{"Area", 4 },
-            //	{"Safe", "Be safe" }
+            //    { "ID", 4 },
+            //    { "Name", "Inter, Nanjing" },
+            //    { "Sign", "IN" },
+            //    { "Right", "NJ" },
+            //    {"Area", 4 },
+            //    {"Safe", "Be safe" }
             //};
             dm.InsertAirport(document0);
             dm.InsertAirport(document1);
             dm.InsertAirport(document2);
         }
 
-		static void FindDocument()
-		{
-			MongoClient mongoClient = new MongoClient("mongodb://192.168.1.108:20000");
-			var database = mongoClient.GetDatabase("FlightBooking");
-			var collection = database.GetCollection<BsonDocument>("Airport");
-			var document = collection.Find(new BsonDocument()).FirstOrDefault();
-			Console.WriteLine(document.ToString());
-		}
-		static async Task TestMongoDBAsync()
-		{
-			MongoClient mongoClient = new MongoClient("mongodb://192.168.1.108:20000");
-			var database = mongoClient.GetDatabase("testdb");
-			var collection = database.GetCollection<BsonDocument>("FlightBooking");
-			await collection.InsertOneAsync(new BsonDocument("Name", "Jack"));
-			var list = await collection.Find(new BsonDocument("Name", "Jack")).ToListAsync();
-			foreach (var document in list)
-			{
-				Console.WriteLine(document["Name"]);
-			}
-		}
-	}
+        static void FindDocument()
+        {
+            MongoClient mongoClient = new MongoClient("mongodb://192.168.1.108:20000");
+            var database = mongoClient.GetDatabase("FlightBooking");
+            var collection = database.GetCollection<BsonDocument>("Airport");
+            var document = collection.Find(new BsonDocument()).FirstOrDefault();
+            Console.WriteLine(document.ToString());
+        }
+        static async Task TestMongoDBAsync()
+        {
+            MongoClient mongoClient = new MongoClient("mongodb://192.168.1.108:20000");
+            var database = mongoClient.GetDatabase("testdb");
+            var collection = database.GetCollection<BsonDocument>("FlightBooking");
+            await collection.InsertOneAsync(new BsonDocument("Name", "Jack"));
+            var list = await collection.Find(new BsonDocument("Name", "Jack")).ToListAsync();
+            foreach (var document in list)
+            {
+                Console.WriteLine(document["Name"]);
+            }
+        }
+    }
 }

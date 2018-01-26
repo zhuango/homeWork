@@ -31,7 +31,11 @@ namespace FlightBookingSystem
             Airport airport = new Airport(this.mDBManager.QueryAirport(airportID));
             return airport;
         }
-
+        public Airport QueryAirport(String airportName)
+        {
+            Airport airport = new Airport(this.mDBManager.QueryAirport(airportName));
+            return airport;
+        }
         public List<Flight> QueryFlights(Int32 airportID)
         {
             List<Flight> flights = new List<Flight>();

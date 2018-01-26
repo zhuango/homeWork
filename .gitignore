@@ -21,3 +21,7 @@
 !*.mongo
 !*.sh
 !*.dll
+/DDB/TestMongoDB/FlightBookingWindow/obj/Debug
+/DDB/TestMongoDB/FlightBookingWindow/bin/Debug
+/DDB/TestMongoDB/TestMongoDB/obj/Debug
+/DDB/TestMongoDB/TestMongoDB/bin/Debug

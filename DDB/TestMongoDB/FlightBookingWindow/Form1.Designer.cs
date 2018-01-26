@@ -63,6 +63,10 @@
             this.textBox6 = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.richTextBox3 = new System.Windows.Forms.RichTextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.textBox7 = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.comboBox5 = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -289,6 +293,8 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.label13);
+            this.tabPage2.Controls.Add(this.textBox7);
             this.tabPage2.Controls.Add(this.label11);
             this.tabPage2.Controls.Add(this.dateTimePicker2);
             this.tabPage2.Controls.Add(this.button3);
@@ -308,7 +314,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(175, 166);
+            this.label11.Location = new System.Drawing.Point(175, 160);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(29, 12);
             this.label11.TabIndex = 22;
@@ -316,7 +322,7 @@
             // 
             // dateTimePicker2
             // 
-            this.dateTimePicker2.Location = new System.Drawing.Point(210, 160);
+            this.dateTimePicker2.Location = new System.Drawing.Point(210, 154);
             this.dateTimePicker2.Name = "dateTimePicker2";
             this.dateTimePicker2.Size = new System.Drawing.Size(120, 21);
             this.dateTimePicker2.TabIndex = 21;
@@ -324,7 +330,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(415, 122);
+            this.button3.Location = new System.Drawing.Point(415, 130);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 23);
             this.button3.TabIndex = 20;
@@ -343,7 +349,7 @@
             // 
             // textBox5
             // 
-            this.textBox5.Location = new System.Drawing.Point(210, 124);
+            this.textBox5.Location = new System.Drawing.Point(210, 127);
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(121, 21);
             this.textBox5.TabIndex = 18;
@@ -352,7 +358,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(175, 92);
+            this.label8.Location = new System.Drawing.Point(175, 76);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(29, 12);
             this.label8.TabIndex = 17;
@@ -361,7 +367,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(163, 127);
+            this.label9.Location = new System.Drawing.Point(163, 130);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(41, 12);
             this.label9.TabIndex = 16;
@@ -369,7 +375,7 @@
             // 
             // textBox4
             // 
-            this.textBox4.Location = new System.Drawing.Point(210, 89);
+            this.textBox4.Location = new System.Drawing.Point(210, 73);
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(121, 21);
             this.textBox4.TabIndex = 15;
@@ -378,6 +384,8 @@
             // tabPage3
             // 
             this.tabPage3.AccessibleName = "";
+            this.tabPage3.Controls.Add(this.comboBox5);
+            this.tabPage3.Controls.Add(this.label14);
             this.tabPage3.Controls.Add(this.button4);
             this.tabPage3.Controls.Add(this.textBox6);
             this.tabPage3.Controls.Add(this.label12);
@@ -426,6 +434,44 @@
             this.richTextBox3.Text = "";
             this.richTextBox3.TextChanged += new System.EventHandler(this.richTextBox3_TextChanged);
             // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(174, 103);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(17, 12);
+            this.label13.TabIndex = 24;
+            this.label13.Text = "ID";
+            // 
+            // textBox7
+            // 
+            this.textBox7.Location = new System.Drawing.Point(209, 100);
+            this.textBox7.Name = "textBox7";
+            this.textBox7.Size = new System.Drawing.Size(121, 21);
+            this.textBox7.TabIndex = 23;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(171, 97);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(71, 12);
+            this.label14.TabIndex = 24;
+            this.label14.Text = "AirportName";
+            // 
+            // comboBox5
+            // 
+            this.comboBox5.FormattingEnabled = true;
+            this.comboBox5.Items.AddRange(new object[] {
+            "ZhouShuiZi, Dalian",
+            "ShuangLiu, ChenDu",
+            "LuKou, NangJing"});
+            this.comboBox5.Location = new System.Drawing.Point(248, 95);
+            this.comboBox5.Name = "comboBox5";
+            this.comboBox5.Size = new System.Drawing.Size(121, 20);
+            this.comboBox5.TabIndex = 26;
+            this.comboBox5.SelectedIndexChanged += new System.EventHandler(this.comboBox5_SelectedIndexChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -433,7 +479,7 @@
             this.ClientSize = new System.Drawing.Size(689, 451);
             this.Controls.Add(this.tabControl1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "BookingSystem";
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
@@ -482,6 +528,10 @@
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.TextBox textBox6;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox textBox7;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.ComboBox comboBox5;
     }
 }
 

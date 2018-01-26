@@ -161,9 +161,9 @@ namespace FlightBookingWindow
         private void button4_Click(object sender, EventArgs e)
         {
             Int32 airportID = Int32.Parse(textBox6.Text);
-            Airport airoprt = this.mTakingOffManager.QueryAirport(airportID);
+            Airport airport = this.mTakingOffManager.QueryAirport(airportID);
             List<Flight> flights = this.mTakingOffManager.QueryFlights(airportID);
-            String info = airoprt.Name + "\n";
+            String info = airport.Name + "\n";
             foreach(Flight flight in flights)
             {
                 info += flight.ToString() + "\n";
@@ -184,6 +184,13 @@ namespace FlightBookingWindow
         private void richTextBox2_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void comboBox5_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            String airportName = comboBox5.SelectedItem.ToString();
+            Airport airport = this.mTakingOffManager.QueryAirport(airportName);
+            textBox6.Text = airport.ID.ToString();
         }
     }
 }

@@ -101,6 +101,19 @@ namespace FlightBookingSystem
                 return null;
             }
         }
+        public BsonDocument QueryAirport(String airportName)
+        {
+            var filter = this.filterBuilder.Eq("Name", airportName);
+            try
+            {
+                var result = this.mAirport.Find(filter).First();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         //public List<BsonDocument> QueryFlight(int flightNumber)
         //{
 
